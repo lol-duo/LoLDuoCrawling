@@ -1,6 +1,9 @@
 package com.lolduo.duo.entity.clientInfo;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.lolduo.duo.entity.clientInfo.sub.Item;
+import com.lolduo.duo.entity.clientInfo.sub.Perk;
+import com.lolduo.duo.entity.clientInfo.sub.Spell;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,8 +13,6 @@ import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
 
 @Entity
 @NoArgsConstructor

@@ -1,11 +1,10 @@
 package com.lolduo.duo.entity;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.lolduo.duo.dto.match_v5.MatchDto;
+import com.lolduo.duo.dto.RiotAPI.match_v5.MatchDto;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 

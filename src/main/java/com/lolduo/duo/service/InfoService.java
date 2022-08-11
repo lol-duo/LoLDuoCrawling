@@ -3,6 +3,9 @@ package com.lolduo.duo.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lolduo.duo.entity.clientInfo.*;
+import com.lolduo.duo.entity.clientInfo.sub.Item;
+import com.lolduo.duo.entity.clientInfo.sub.Perk;
+import com.lolduo.duo.entity.clientInfo.sub.Spell;
 import com.lolduo.duo.entity.gameInfo.DuoEntity;
 import com.lolduo.duo.entity.gameInfo.QuintetEntity;
 import com.lolduo.duo.entity.gameInfo.SoloEntity;
@@ -18,7 +21,6 @@ import com.lolduo.duo.repository.gameInfo.TrioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 
 import java.util.*;
@@ -268,9 +270,7 @@ public class InfoService {
         for(int i = 0 ; i < infoSpellList.size();i++){
             Spell spell = infoSpellList.get(i);
             if(spell.getSpellMap().values().containsAll(spellList.values())){
-                spell.setWin(spell.getWin()+1);
-                infoSpellList.add(i,spell);
-                infoSpellList.remove(i+1);
+                infoSpellList.get(i).setWin(spell.getWin()+1);
                 isUpdated=true;
                 break;
             }

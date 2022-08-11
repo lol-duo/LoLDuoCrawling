@@ -1,28 +1,29 @@
 package com.lolduo.duo.service;
 
 
-import com.lolduo.duo.dto.champion.ChampionDto;
-import com.lolduo.duo.dto.item.ItemDto;
-import com.lolduo.duo.dto.league_v4.LeagueListDTO;
-import com.lolduo.duo.dto.setting.perk.PerkDto;
-import com.lolduo.duo.dto.setting.perk.PerkRune;
-import com.lolduo.duo.dto.spell.SpellDto;
-import com.lolduo.duo.dto.summoner_v4.SummonerDTO;
-import com.lolduo.duo.dto.timeline.MatchTimeLineDto;
+import com.lolduo.duo.dto.ddr.champion.ChampionDto;
+import com.lolduo.duo.dto.ddr.item.ItemDto;
+import com.lolduo.duo.dto.RiotAPI.league_v4.LeagueListDTO;
+import com.lolduo.duo.dto.ddr.perk.PerkDto;
+import com.lolduo.duo.dto.ddr.perk.PerkRune;
+import com.lolduo.duo.dto.ddr.spell.SpellDto;
+import com.lolduo.duo.dto.RiotAPI.summoner_v4.SummonerDTO;
+import com.lolduo.duo.dto.RiotAPI.timeline.MatchTimeLineDto;
 import com.lolduo.duo.entity.*;
 import com.lolduo.duo.entity.gameInfo.DuoEntity;
 import com.lolduo.duo.entity.gameInfo.QuintetEntity;
 import com.lolduo.duo.entity.gameInfo.TrioEntity;
-import com.lolduo.duo.entity.item.ItemEntity;
-import com.lolduo.duo.entity.item.ItemFullEntity;
-import com.lolduo.duo.dto.match_v5.MatchDto;
-import com.lolduo.duo.dto.match_v5.Participant;
+import com.lolduo.duo.entity.initialInfo.*;
+import com.lolduo.duo.dto.RiotAPI.match_v5.MatchDto;
+import com.lolduo.duo.dto.RiotAPI.match_v5.Participant;
 import com.lolduo.duo.entity.gameInfo.SoloEntity;
 import com.lolduo.duo.repository.*;
 import com.lolduo.duo.repository.gameInfo.DuoRepository;
 import com.lolduo.duo.repository.gameInfo.QuintetRepository;
 import com.lolduo.duo.repository.gameInfo.SoloRepository;
 import com.lolduo.duo.repository.gameInfo.TrioRepository;
+import com.lolduo.duo.repository.initialInfo.*;
+import com.lolduo.duo.service.slack.SlackNotifyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -111,7 +112,7 @@ public class RiotService implements ApplicationRunner{
         infoService.makeQuintetInfo();
         log.info("2차 가공 end");
     }
-    @Scheduled(cron = "1 0 0 * * *", zone = "Asia/Seoul")
+    //@Scheduled(cron = "1 0 0 * * *", zone = "Asia/Seoul")
     private void All(){
         Long endTime = System.currentTimeMillis() / 1000;
         Long startTime = endTime - 43200;

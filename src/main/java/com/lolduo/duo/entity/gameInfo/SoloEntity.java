@@ -1,6 +1,5 @@
 package com.lolduo.duo.entity.gameInfo;
 
-import com.lolduo.duo.entity.SpellEntity;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
