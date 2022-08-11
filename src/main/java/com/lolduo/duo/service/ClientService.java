@@ -27,7 +27,6 @@ public class ClientService {
     private final DuoInfoRepository duoInfoRepository;
     private final TrioInfoRepository trioInfoRepository;
     private final QuintetInfoRepository quintetInfoRepository;
-
     private final ChampionRepository championRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -89,7 +88,8 @@ public class ClientService {
 
                     List<ClientChampionInfoDTO> clientChampionInfoList = new ArrayList<>(1);
                     clientChampionInfoList.add(championInfo2ClientChampionInfo(new ChampionInfoDTO(infoEntity.getChampionId(), infoEntity.getPosition())));
-                    result.add(new ChampionInfoListDTO(clientChampionInfoList, String.format("%.2f%%", 100 * ((double) infoEntity.getWinCount() / infoEntity.getAllCount()))));
+                    result.add(new ChampionInfoListDTO(clientChampionInfoList, String.format("%.2f%%", 100 * ((double) infoEntity.getWinCount() / infoEntity.getAllCount())),
+                            String.valueOf(infoEntity.getAllCount()).replaceAll("\\B(?=(\\d{3})+(?!\\d))", ",") + " 게임"));
                 });
             }
             // 조합 정보가 존재하지 않는다면 입력 값을 그대로 ClientChampionInfo로 변환한 List만 반환한다.
@@ -97,7 +97,7 @@ public class ClientService {
                 log.info("getChampionInfoList() - 검색 결과.\n해당하는 데이터 행이 존재하지 않습니다.");
                 List<ClientChampionInfoDTO> clientChampionInfoList = new ArrayList<ClientChampionInfoDTO>(1);
                 clientChampionInfoList.add(championInfo2ClientChampionInfo(championInfoDTO));
-                result.add(new ChampionInfoListDTO(clientChampionInfoList, "데이터가 존재하지 않습니다."));
+                result.add(new ChampionInfoListDTO(clientChampionInfoList, "데이터가 존재하지 않습니다.","0 게임"));
             }
         }
         //챔피언 수가 2 이상일 때
@@ -182,7 +182,9 @@ public class ClientService {
                 log.info("putCombinationInfoToResult() - 검색 결과 : championId = {}, position = {}, AllCount = {}, WinCount = {}", infoEntity.getChampionId().toString(), infoEntity.getPosition().toString(), infoEntity.getAllCount(), infoEntity.getWinCount());
                 result.add(new ChampionInfoListDTO(
                                 createClientChampionInfoDTOList(infoEntity.getChampionId().size(), infoEntity, selectedPositionOrderMap, selectedChampionOrderMap, allQueue),
-                                String.format("%.2f%%", 100 * ((double) infoEntity.getWinCount() / infoEntity.getAllCount()))
+                                String.format("%.2f%%", 100 * ((double) infoEntity.getWinCount() / infoEntity.getAllCount())),
+                        String.valueOf(infoEntity.getAllCount()).replaceAll("\\B(?=(\\d{3})+(?!\\d))", ",") + " 게임"
+
                         )
                 );
             });
@@ -193,7 +195,7 @@ public class ClientService {
             championInfoDTOList.forEach(championInfoDTO ->
                     clientChampionInfoList.add(championInfo2ClientChampionInfo(championInfoDTO))
             );
-            result.add(new ChampionInfoListDTO(clientChampionInfoList, "데이터가 존재하지 않습니다."));
+            result.add(new ChampionInfoListDTO(clientChampionInfoList, "데이터가 존재하지 않습니다.","0 게임"));
         }
     }
 

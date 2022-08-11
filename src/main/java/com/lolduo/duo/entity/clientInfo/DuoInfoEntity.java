@@ -4,23 +4,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 
 @Entity
 @NoArgsConstructor
 @Table(name = "duo_info")
-@Setter
 @Getter
 @TypeDef(name = "json", typeClass = JsonType.class,defaultForType = JsonNode.class)
-public class DuoInfoEntity implements Serializable, ICombinationInfoEntity {
+public class DuoInfoEntity implements ICombinationInfoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -28,11 +24,11 @@ public class DuoInfoEntity implements Serializable, ICombinationInfoEntity {
 
     @Type(type = "json")
     @Column(name = "champion_id",columnDefinition = "json")
-    private TreeSet<Long> championId;
+    private TreeSet<Long> championId = new TreeSet<>();
 
     @Type(type = "json")
     @Column(name = "position", columnDefinition = "json")
-    private Map<Long, String> position;
+    private Map<Long, String> position = new HashMap<>();
 
     @Column(name = "all_count")
     private Long allCount;
@@ -42,15 +38,25 @@ public class DuoInfoEntity implements Serializable, ICombinationInfoEntity {
 
     @Type(type = "json")
     @Column(name = "perk_list", columnDefinition = "json")
-    private List<Perk> perkList;
+    private List<Perk> perkList = new ArrayList<>();
 
     @Type(type = "json")
     @Column(name = "spell_list", columnDefinition = "json")
-    private List<Spell> spellList;
+    private List<Spell> spellList = new ArrayList<>();
 
     @Type(type = "json")
     @Column(name = "item_list", columnDefinition = "json")
-    private List<Item> itemList;
+    private List<Item> itemList = new ArrayList<>();
+
+    @Override
+    public void setAllCount(Long allCount) {
+        this.allCount = allCount;
+    }
+
+    @Override
+    public void setWinCount(Long winCount) {
+        this.winCount = winCount;
+    }
 
     public DuoInfoEntity(TreeSet<Long> championId, Map<Long, String> position, Long allCount, Long winCount, List<Perk> perkList, List<Spell> spellList, List<Item> itemList) {
         this.championId = championId;

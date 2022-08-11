@@ -20,8 +20,6 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 public class SlackNotifyService {
 
-    String notifyChannelName = "notification";
-    String notifyChannelId;
     @Value("${slack.token}")
     String token;
     @Value("${spring.profiles.active}")
@@ -30,9 +28,6 @@ public class SlackNotifyService {
     @EventListener(ContextRefreshedEvent.class)
     public void onContextRefreshedEvent(ContextRefreshedEvent event) {
         if (springProfile.equals("server")) {
-            if (notifyChannelId == null)
-                initChannelId();
-
             sendMessage(ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
                     .format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss"))
                     + " - 서버를 기동합니다.\n프론트 페이지: https://lolduo.net/\nSwagger: http://api.lolduo.net/swagger-ui.html#/\nDatadog: https://www.datadoghq.com/");
@@ -42,9 +37,6 @@ public class SlackNotifyService {
     @EventListener(ContextClosedEvent.class)
     public void onContextClosedEvent(ContextClosedEvent event) {
         if (springProfile.equals("server")) {
-            if (notifyChannelId == null)
-                initChannelId();
-
             sendMessage(ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
                     .format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss"))
                     + " - 서버가 종료되었습니다.\nDatadog: https://www.datadoghq.com/");
@@ -52,6 +44,7 @@ public class SlackNotifyService {
     }
 
     public void sendMessage(String text) {
+        String notifyChannelId = initChannelId("notification");
         if (notifyChannelId == null) {
             log.error("[SlackAPI] error: channelId is null");
             return;
@@ -71,10 +64,10 @@ public class SlackNotifyService {
         }
     }
 
-    private void initChannelId() {
+    private String initChannelId(String notifyChannelName) {
         log.info("[SlackAPI] channelName: {}", notifyChannelName);
         var client = Slack.getInstance().methods();
-
+        String notifyChannelId = null;
         try {
             var result = client.conversationsList( requestConfig ->
                     requestConfig.token(token)
@@ -89,5 +82,9 @@ public class SlackNotifyService {
         } catch (IOException | SlackApiException | NullPointerException e) {
             log.error("[SlackAPI] error: {}", e.getMessage(), e);
         }
+        return notifyChannelId;
+    }
+    public String nowTime() {
+        return ZonedDateTime.now(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss"));
     }
 }

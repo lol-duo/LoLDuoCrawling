@@ -12,9 +12,12 @@ public class ChampionInfoListDTO implements Comparable<ChampionInfoListDTO>{
     @ApiModelProperty(example = "58.7%")
     private String winRate;
 
-    public ChampionInfoListDTO(List<ClientChampionInfoDTO> clientChampionInfoDTOList, String winRate) {
+    @ApiModelProperty(example = "1,000게임")
+    private String allCount;
+    public ChampionInfoListDTO(List<ClientChampionInfoDTO> clientChampionInfoDTOList, String winRate,String allCount) {
         this.clientChampionInfoDTOList = clientChampionInfoDTOList;
         this.winRate = winRate;
+        this.allCount = allCount;
     }
 
     @Override
