@@ -7,6 +7,5 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Optional;
 
 public interface DuoRepository extends JpaRepository<DuoEntity, Long> {
-    @Query(value = "select * from duo where json_contains(champion,?1) and  json_contains(position,?2)",nativeQuery = true)
-    Optional<DuoEntity> findByChampionAndPosition(String championId, String position);
+
 }
