@@ -70,7 +70,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1660234462276</updated>
-      <workItem from="1660234463605" duration="3603000" />
+      <workItem from="1660234463605" duration="3939000" />
     </task>
     <task id="LOCAL-00001" summary="폴더구조 Refactoring 및 클라이언트 api 관련 컨트롤러, 서비스 등 삭제.">
       <created>1660237761456</created>
