@@ -14,12 +14,6 @@ public interface ICombinationInfoEntity {
     List<Spell> getSpellList();
     List<Item> getItemList();
 
-    void setId(Long id);
-    void setChampionId(TreeSet<Long> championId);
-    void setPosition(Map<Long, String> position);
     void setAllCount(Long allCount);
     void setWinCount(Long winCount);
-    void setPerkList(List<Perk> perkList);
-    void setSpellList(List<Spell> spellList);
-    void setItemList(List<Item> itemList);
 }

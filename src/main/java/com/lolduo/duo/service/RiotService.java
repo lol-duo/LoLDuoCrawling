@@ -15,8 +15,8 @@ import com.lolduo.duo.entity.gameInfo.QuintetEntity;
 import com.lolduo.duo.entity.gameInfo.TrioEntity;
 import com.lolduo.duo.entity.item.ItemEntity;
 import com.lolduo.duo.entity.item.ItemFullEntity;
-import com.lolduo.duo.entity.match_v5.MatchDto;
-import com.lolduo.duo.entity.match_v5.Participant;
+import com.lolduo.duo.dto.match_v5.MatchDto;
+import com.lolduo.duo.dto.match_v5.Participant;
 import com.lolduo.duo.entity.gameInfo.SoloEntity;
 import com.lolduo.duo.repository.*;
 import com.lolduo.duo.repository.gameInfo.DuoRepository;
@@ -37,9 +37,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -61,8 +60,10 @@ public class RiotService implements ApplicationRunner{
     private final TrioRepository trioRepository;
     private final QuintetRepository quintetRepository;
     private final LoLUserRepository lolUserRepository;
+    private final MatchDetailRepository matchDetailRepository;
     private final SlackNotifyService slackNotifyService;
     private final InfoService infoService;
+
     public void setKey(String key) {
         this.key = key;
     }
@@ -110,70 +111,57 @@ public class RiotService implements ApplicationRunner{
         infoService.makeQuintetInfo();
         log.info("2차 가공 end");
     }
-    //@Scheduled(cron = "1 0 0 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "1 0 0 * * *", zone = "Asia/Seoul")
     private void All(){
         Long endTime = System.currentTimeMillis() / 1000;
         Long startTime = endTime - 43200;
-        Map<String, List<String>> AllLeaguePuuid = new HashMap<>();
-
-
-        slackNotifyService.sendMessage(ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
-                .format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss"))
-                + "challenger list 가져오기 start");
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger list 가져오기 start");
         log.info("get challenger start");
-        AllLeaguePuuid.put("challenger",getPuuIdList("challenger"));
-        slackNotifyService.sendMessage(ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
-                .format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss"))
-                + "grandmaster list 가져오기 start");
+        getPuuIdList("challenger");
+
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "grandmaster list 가져오기 start");
         log.info("get grandmaster start");
-        AllLeaguePuuid.put("grandmaster",getPuuIdList("grandmaster"));
-        slackNotifyService.sendMessage(ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
-                .format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss"))
-                + "master list 가져오기 start");
+        getPuuIdList("grandmaster");
+
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "master list 가져오기 start");
         log.info("get master start");
-        AllLeaguePuuid.put("master",getPuuIdList("master"));
+        getPuuIdList("master");
 
         Set<String> matchIdList = new HashSet<>();
-        slackNotifyService.sendMessage(ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
-                .format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss"))
-                + "challenger matchId 만들기 start");
+
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger matchId 만들기 start");
         log.info("make challenger matchIList start");
-        matchIdList.addAll(getMatchId(startTime,endTime,AllLeaguePuuid.get("challenger")));
-        slackNotifyService.sendMessage(ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
-                .format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss"))
-                + "grandmaster matchId 만들기 start");
+        matchIdList.addAll(getMatchId(startTime,endTime,"challenger"));
+
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "grandmaster matchId 만들기 start");
         log.info("make grandmaster matchIList start");
-        matchIdList.addAll(getMatchId(startTime,endTime,AllLeaguePuuid.get("grandmaster")));
-        slackNotifyService.sendMessage(ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
-                .format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss"))
-                + "master matchId 만들기 start");
+        matchIdList.addAll(getMatchId(startTime,endTime,"grandmaster"));
+
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "master matchId 만들기 start");
         log.info("make master matchIList start");
-        matchIdList.addAll(getMatchId(startTime,endTime,AllLeaguePuuid.get("master")));
+        matchIdList.addAll(getMatchId(startTime,endTime,"master"));
 
-
-        slackNotifyService.sendMessage(ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
-                .format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss"))
-                + "master matchId 만들기 start");
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "matchId 만들기 start");
         log.info("getMatch Info start");
         getMatchInfo(matchIdList);
         log.info("solo~team 정보 저장완료 ");
         log.info("2차 가공 start");
 
-        slackNotifyService.sendMessage(ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
-                .format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss"))
-                + "SoloInfo 만들기 start");
+        setSolo();
+        setDuo();
+        setTrio();
+        setQuintet();
+
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "SoloInfo 만들기 start");
         infoService.makeSoloInfo();
-        slackNotifyService.sendMessage(ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
-                .format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss"))
-                + "DuoInfo 만들기 start");
+
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "DuoInfo 만들기 start");
         infoService.makeDuoInfo();
-        slackNotifyService.sendMessage(ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
-                .format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss"))
-                + "TrioInfo 만들기 start");
+
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "TrioInfo 만들기 start");
         infoService.makeTrioInfo();
-        slackNotifyService.sendMessage(ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
-                .format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss"))
-                + "QuintetInfo 만들기 start");
+
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "QuintetInfo 만들기 start");
         infoService.makeQuintetInfo();
         log.info("2차 가공 end");
     }
@@ -195,7 +183,18 @@ public class RiotService implements ApplicationRunner{
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
         matchIdList.forEach(matchId -> {
             final int PlayerNum = 10;
-            ResponseEntity<MatchTimeLineDto> time_match = restTemplate.exchange(url + matchId + "/timeline", HttpMethod.GET, requestEntity, MatchTimeLineDto.class);
+            ResponseEntity<MatchTimeLineDto> time_match = null;
+            try{
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                time_match = restTemplate.exchange(url + matchId + "/timeline", HttpMethod.GET, requestEntity, MatchTimeLineDto.class);
+            }catch (Exception e){
+                log.info("matchId : " + matchId + " 에러");
+                return;
+            }
             List<List<Long>> playerItemList = new ArrayList<List<Long>>();
             for(int i =0 ; i<= PlayerNum; i++){
                 playerItemList.add(new ArrayList<>());
@@ -217,25 +216,20 @@ public class RiotService implements ApplicationRunner{
                 playerItemList.get(i).add(0L);
                 playerItemList.get(i).add(0L);
             }
+            ResponseEntity<MatchDto> response_match = null;
             try {
-                Thread.sleep(1500);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                response_match = restTemplate.exchange(url + matchId, HttpMethod.GET, requestEntity, MatchDto.class);
+            }catch (Exception e){
+                log.info("matchId : " + matchId + " 에러");
+                return;
             }
-
-            ResponseEntity<MatchDto> response_match = restTemplate.exchange(url + matchId, HttpMethod.GET, requestEntity, MatchDto.class);
-
             String tier = getTier(response_match.getBody());
-
-            setSolo(response_match.getBody(),playerItemList,puuIdMap, tier);
-            setDuo(response_match.getBody(),playerItemList,puuIdMap, tier);
-            setTrio(response_match.getBody(),playerItemList,puuIdMap, tier);
-            setQuintet(response_match.getBody(),playerItemList,puuIdMap, tier);
-            try {
-                Thread.sleep(1500);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            matchDetailRepository.save(new MatchEntity(LocalDate.now(ZoneId.of("Asia/Seoul")),response_match.getBody(),  playerItemList, puuIdMap,tier));
         });
     }
     private String getTier(MatchDto matchDto){
@@ -264,74 +258,100 @@ public class RiotService implements ApplicationRunner{
         return tierNameList.get(Math.round(tierNum/ 10));
     }
 
-    private void setSolo(MatchDto matchDto, List<List<Long>> playerItemList, Map<String, Long> puuIdMap,String tier){
-        matchDto.getInfo().getParticipants().forEach(participant -> {
-            Boolean win = participant.getWin();
-            String position = participant.getTeamPosition();
-            List<Long> itemList = playerItemList.get(puuIdMap.get(participant.getPuuid()).intValue());
-            TreeSet<Long> spellList = new TreeSet<>();
-            spellList.add(participant.getSummoner1Id());
-            spellList.add(participant.getSummoner2Id());
-            Long championId = participant.getChampionId();
-            List<Long> perkList = new ArrayList<>();
-            perkList.add(participant.getPerks().getStatPerks().getDefense());
-            perkList.add(participant.getPerks().getStatPerks().getOffense());
-            perkList.add(participant.getPerks().getStatPerks().getFlex());
-            participant.getPerks().getStyles().forEach(perkStyle -> {
-                perkStyle.getSelections().forEach(perkStyleSelection -> {
-                    perkList.add(perkStyleSelection.getPerk());
+    private void setSolo(){
+        List<MatchEntity> matchEntity = matchDetailRepository.findAllByDate(LocalDate.now(ZoneId.of("Asia/Seoul")));
+        matchEntity.forEach(match -> {
+            MatchDto matchDto = match.getMatchInfo();
+            List<List<Long>> playerItemList = match.getPlayerItemList();
+            Map<String, Long> puuIdMap = match.getPuuIdMap();
+            String tier = match.getTier();
+
+            matchDto.getInfo().getParticipants().forEach(participant -> {
+                Boolean win = participant.getWin();
+                String position = participant.getTeamPosition();
+                List<Long> itemList = playerItemList.get(puuIdMap.get(participant.getPuuid()).intValue());
+                TreeSet<Long> spellList = new TreeSet<>();
+                spellList.add(participant.getSummoner1Id());
+                spellList.add(participant.getSummoner2Id());
+                Long championId = participant.getChampionId();
+                List<Long> perkList = new ArrayList<>();
+                perkList.add(participant.getPerks().getStatPerks().getDefense());
+                perkList.add(participant.getPerks().getStatPerks().getOffense());
+                perkList.add(participant.getPerks().getStatPerks().getFlex());
+                participant.getPerks().getStyles().forEach(perkStyle -> {
+                    perkStyle.getSelections().forEach(perkStyleSelection -> {
+                        perkList.add(perkStyleSelection.getPerk());
+                    });
+                    perkList.add(perkStyle.getStyle());
                 });
-                perkList.add(perkStyle.getStyle());
+                Collections.sort(perkList);
+                soloRepository.save(new SoloEntity(tier, win,position,itemList,spellList,championId,perkList));
             });
-            Collections.sort(perkList);
-            soloRepository.save(new SoloEntity(tier, win,position,itemList,spellList,championId,perkList));
         });
-    }
-    private void setDuo(MatchDto matchDto, List<List<Long>> playerItemList, Map<String, Long> puuIdMap,String tier) {
-        Map<String,Boolean> visitedWin = new HashMap<>();
-        Map<String,Boolean> visitedLose =new HashMap<>();
-        matchDto.getInfo().getParticipants().forEach(participant -> {
-            if(participant.getWin()==true) {
-                visitedWin.put(participant.getPuuid(),false);
-            }
-            else {
-                visitedLose.put(participant.getPuuid(),false);
-            }
-        });
-        //2인 정보 save
-        combination(matchDto,playerItemList,puuIdMap,new ArrayList<>(),visitedWin,true,2,0, tier);
-        combination(matchDto,playerItemList,puuIdMap,new ArrayList<>(),visitedLose,false,2,0, tier);
-    }
-    private void setTrio(MatchDto matchDto, List<List<Long>> playerItemList, Map<String, Long> puuIdMap,String tier) {
-        Map<String,Boolean> visitedWin =new HashMap<>();
-        Map<String,Boolean> visitedLose =new HashMap<>();
-        matchDto.getInfo().getParticipants().forEach(participant -> {
-            if(participant.getWin()==true) {
-                visitedWin.put(participant.getPuuid(), false);
-            }
-            else{
-                visitedLose.put(participant.getPuuid(),false);
-            }
-        });
-        //3인 정보 save
-        combination(matchDto,playerItemList,puuIdMap,new ArrayList<>(),visitedWin,true,3,0, tier);
-        combination(matchDto,playerItemList,puuIdMap,new ArrayList<>(),visitedLose,false,3,0, tier);
 
     }
-    private void setQuintet(MatchDto matchDto, List<List<Long>> playerItemList, Map<String, Long> puuIdMap,String tier) {
-        List<Participant>  winParticipantList = new ArrayList<>();
-        List<Participant> loseParticipantList = new ArrayList<>();
-        matchDto.getInfo().getParticipants().forEach(participant -> {
-            if(participant.getWin()==true) {
-                winParticipantList.add(participant);
-            }
-            else {
-                loseParticipantList.add(participant);
-            }
+    private void setDuo() {
+        List<MatchEntity> matchEntity = matchDetailRepository.findAllByDate(LocalDate.now(ZoneId.of("Asia/Seoul")));
+        matchEntity.forEach(match -> {
+            MatchDto matchDto = match.getMatchInfo();
+            List<List<Long>> playerItemList = match.getPlayerItemList();
+            Map<String, Long> puuIdMap = match.getPuuIdMap();
+            String tier = match.getTier();
+            Map<String, Boolean> visitedWin = new HashMap<>();
+            Map<String, Boolean> visitedLose = new HashMap<>();
+            matchDto.getInfo().getParticipants().forEach(participant -> {
+                if (participant.getWin() == true) {
+                    visitedWin.put(participant.getPuuid(), false);
+                } else {
+                    visitedLose.put(participant.getPuuid(), false);
+                }
+            });
+            //2인 정보 save
+            combination(matchDto, playerItemList, puuIdMap, new ArrayList<>(), visitedWin, true, 2, 0, tier);
+            combination(matchDto, playerItemList, puuIdMap, new ArrayList<>(), visitedLose, false, 2, 0, tier);
         });
-        //5인 정보 save
-        saveMatchInfo(winParticipantList,playerItemList,puuIdMap,true,5, tier);
-        saveMatchInfo(loseParticipantList,playerItemList,puuIdMap,false,5, tier);
+    }
+    private void setTrio() {
+        List<MatchEntity> matchEntity = matchDetailRepository.findAllByDate(LocalDate.now(ZoneId.of("Asia/Seoul")));
+        matchEntity.forEach(match -> {
+            MatchDto matchDto = match.getMatchInfo();
+            List<List<Long>> playerItemList = match.getPlayerItemList();
+            Map<String, Long> puuIdMap = match.getPuuIdMap();
+            String tier = match.getTier();
+            Map<String, Boolean> visitedWin = new HashMap<>();
+            Map<String, Boolean> visitedLose = new HashMap<>();
+            matchDto.getInfo().getParticipants().forEach(participant -> {
+                if (participant.getWin() == true) {
+                    visitedWin.put(participant.getPuuid(), false);
+                } else {
+                    visitedLose.put(participant.getPuuid(), false);
+                }
+            });
+            //3인 정보 save
+            combination(matchDto, playerItemList, puuIdMap, new ArrayList<>(), visitedWin, true, 3, 0, tier);
+            combination(matchDto, playerItemList, puuIdMap, new ArrayList<>(), visitedLose, false, 3, 0, tier);
+        });
+    }
+    private void setQuintet() {
+        List<MatchEntity> matchEntity = matchDetailRepository.findAllByDate(LocalDate.now(ZoneId.of("Asia/Seoul")));
+        matchEntity.forEach(match -> {
+            MatchDto matchDto = match.getMatchInfo();
+            List<List<Long>> playerItemList = match.getPlayerItemList();
+            Map<String, Long> puuIdMap = match.getPuuIdMap();
+            String tier = match.getTier();
+            List<Participant> winParticipantList = new ArrayList<>();
+            List<Participant> loseParticipantList = new ArrayList<>();
+            matchDto.getInfo().getParticipants().forEach(participant -> {
+                if (participant.getWin() == true) {
+                    winParticipantList.add(participant);
+                } else {
+                    loseParticipantList.add(participant);
+                }
+            });
+            //5인 정보 save
+            saveMatchInfo(winParticipantList, playerItemList, puuIdMap, true, 5, tier);
+            saveMatchInfo(loseParticipantList, playerItemList, puuIdMap, false, 5, tier);
+        });
     }
     private void combination(MatchDto matchDto, List<List<Long>> playerItemList, Map<String, Long> puuIdMap,List<Participant> participantList,Map<String,Boolean> visited,Boolean win,int number,int start,String tier){
         if(participantList.size()==number){
@@ -393,28 +413,35 @@ public class RiotService implements ApplicationRunner{
         }
 
     }
-    private List<String> getPuuIdList(String league){
+    private void getPuuIdList(String league) {
         String url = "https://kr.api.riotgames.com/lol/league/v4/"+league+"leagues/by-queue/RANKED_SOLO_5x5";
         String url_summoner = "https://kr.api.riotgames.com/lol/summoner/v4/summoners/";
-        List<String> puuidList = new ArrayList<>();
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-Riot-Token", key);
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
-        ResponseEntity<LeagueListDTO> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, LeagueListDTO.class);
-
+        ResponseEntity<LeagueListDTO> response = null;
+        try{
+            response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, LeagueListDTO.class);
+        }catch (Exception e){
+            log.info("에러발생 : {}",e.getMessage());
+            return;
+        }
         response.getBody().getEntries().forEach(leagueItemDTO -> {
             try {
                 Thread.sleep(1500);
             } catch (InterruptedException e) {
-                log.info("getSummonerId Error!");
+                log.info("getSummonerId thread Error!");
                 throw new RuntimeException(e);
             }
-
-            String puuid = restTemplate.exchange(url_summoner + leagueItemDTO.getSummonerId(), HttpMethod.GET, requestEntity, SummonerDTO.class).getBody().getPuuid();
-
-            puuidList.add(puuid);
+            String puuid = null;
+            try{
+                puuid = restTemplate.exchange(url_summoner + leagueItemDTO.getSummonerId(), HttpMethod.GET, requestEntity, SummonerDTO.class).getBody().getPuuid();
+            }catch (Exception e){
+                log.info("에러발생 summuner: {}",e.getMessage());
+                return;
+            }
 
             LoLUserEntity lolUserEntity = lolUserRepository.findById(puuid).orElse(null);
             if(lolUserEntity == null)
@@ -424,11 +451,12 @@ public class RiotService implements ApplicationRunner{
                 lolUserRepository.save(lolUserEntity);
             }
         });
-        return puuidList;
+        return;
     }
 
-    private Set<String> getMatchId(Long startTime, Long endTime, List<String> puuidList) {
+    private Set<String> getMatchId(Long startTime, Long endTime, String league) {
         String url = "https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/";
+        List<String> puuidList = lolUserRepository.findPuuidsByLeague(league);
 
         Set<String> matchList = new HashSet<>();
         RestTemplate restTemplate = new RestTemplate();
@@ -437,12 +465,19 @@ public class RiotService implements ApplicationRunner{
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
         puuidList.forEach(puuid -> {
-            ResponseEntity<List> response = restTemplate.exchange(url + puuid + "/ids?startTime=" + startTime+ "&endTime=" + endTime + "&type=ranked&start=0&count=100", HttpMethod.GET, requestEntity, List.class);
             try {
                 Thread.sleep(1500);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+            ResponseEntity<List> response = null;
+            try {
+                response = restTemplate.exchange(url + puuid + "/ids?startTime=" + startTime + "&endTime=" + endTime + "&type=ranked&start=0&count=100", HttpMethod.GET, requestEntity, List.class);
+            }catch (Exception e) {
+                log.info("에러발생 : {}",e.getMessage());
+                return;
+            }
+
             matchList.addAll(response.getBody());
         });
         return matchList;
