@@ -38,7 +38,7 @@ jobs:
         run: cp ./scripts/*.sh ./deploy
 
       - name: Make zip file
-        run: zip -r ./lolduo-dev.zip ./deploy
+        run: zip -r ./lolduo_crawling.zip ./deploy
         shell: bash
         
       - name: Configure AWS credentials
@@ -49,11 +49,11 @@ jobs:
           aws-region: ap-northeast-2
           
       - name: upload to s3
-        run: aws s3 cp --region ap-northeast-2 ./lolduo-dev.zip s3://$S3_BUCKET_NAME/
+        run: aws s3 cp --region ap-northeast-2 ./lolduo_crawling.zip s3://$S3_BUCKET_NAME/
          
       - name: Deploy
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          aws deploy create-deployment --application-name lol-duo-application --deployment-group-name lol-duo-group --file-exists-behavior OVERWRITE --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=lolduo-dev.zip --region ap-northeast-2
+          aws deploy create-deployment --application-name lol-duo-crawling-application --deployment-group-name lol-duo-crawling-group --file-exists-behavior OVERWRITE --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=lolduo_crawling.zip --region ap-northeast-2
