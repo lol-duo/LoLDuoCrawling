@@ -9,4 +9,5 @@ import java.util.List;
 public interface LoLUserRepository extends JpaRepository<LoLUserEntity, String> {
     @Query(value = "select LE.puuid from LoLUserEntity LE where LE.tier = ?1")
     List<String> findPuuidsByLeague (String league);
+
 }

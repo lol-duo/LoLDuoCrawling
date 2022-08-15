@@ -6,16 +6,11 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 import java.util.Map;
 @Getter
-@NoArgsConstructor
-public class Perk {
+public class Perk extends Sub {
     private Map<Long, List<Long>> perkMap;
-    private Long win;
-    public void setWin(Long win) {
-        this.win = win;
-    }
 
-    public Perk(Map<Long, List<Long>> perkMap, Long win) {
+    public Perk(Map<Long, List<Long>> perkMap, Long win,Long allCount) {
+        super(win,allCount);
         this.perkMap = perkMap;
-        this.win = win;
     }
 }

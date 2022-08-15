@@ -24,4 +24,10 @@
             <appender-ref ref="STDOUT_JSON"/>
         </root>
     </springProfile>
+
+    <springProfile name="devserver">
+        <root level="INFO">
+            <appender-ref ref="STDOUT_JSON"/>
+        </root>
+    </springProfile>
 </configuration>
