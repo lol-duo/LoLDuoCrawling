@@ -65,6 +65,7 @@ public class RiotService implements ApplicationRunner{
     private final SlackNotifyService slackNotifyService;
     private final InfoService infoService;
 
+
     public void setKey(String key) {
         this.key = key;
     }
