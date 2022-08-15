@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-public interface ICombinationInfoEntity {
+public interface ICombiEntity {
     Long getId();
     TreeSet<Long> getChampionId();
     Map<Long, String> getPosition();

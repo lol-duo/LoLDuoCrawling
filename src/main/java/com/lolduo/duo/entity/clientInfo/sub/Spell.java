@@ -8,14 +8,12 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.TreeSet;
 @Getter
-@NoArgsConstructor
 @Setter
-public class Spell implements Serializable {
+public class Spell extends Sub {
     private Map<Long, TreeSet<Long>> spellMap;
-    private Long win;
 
-    public Spell(Map<Long, TreeSet<Long>> spellMap, Long win) {
+    public Spell(Map<Long, TreeSet<Long>> spellMap, Long win,Long allCount) {
+        super(win,allCount);
         this.spellMap = spellMap;
-        this.win = win;
     }
 }

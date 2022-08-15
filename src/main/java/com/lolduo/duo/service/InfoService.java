@@ -6,277 +6,230 @@ import com.lolduo.duo.entity.clientInfo.*;
 import com.lolduo.duo.entity.clientInfo.sub.Item;
 import com.lolduo.duo.entity.clientInfo.sub.Perk;
 import com.lolduo.duo.entity.clientInfo.sub.Spell;
-import com.lolduo.duo.entity.gameInfo.DuoEntity;
-import com.lolduo.duo.entity.gameInfo.QuintetEntity;
-import com.lolduo.duo.entity.gameInfo.SoloEntity;
-import com.lolduo.duo.entity.gameInfo.TrioEntity;
-import com.lolduo.duo.repository.clientInfo.DuoInfoRepository;
-import com.lolduo.duo.repository.clientInfo.QuintetInfoRepository;
-import com.lolduo.duo.repository.clientInfo.SoloInfoRepository;
-import com.lolduo.duo.repository.clientInfo.TrioInfoRepository;
-import com.lolduo.duo.repository.gameInfo.DuoRepository;
-import com.lolduo.duo.repository.gameInfo.QuintetRepository;
-import com.lolduo.duo.repository.gameInfo.SoloRepository;
-import com.lolduo.duo.repository.gameInfo.TrioRepository;
+import com.lolduo.duo.entity.gameInfo.*;
+import com.lolduo.duo.repository.clientInfo.*;
+import com.lolduo.duo.repository.gameInfo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class InfoService {
-    private final SoloRepository soloRepository;
-    private final DuoRepository duoRepository;
-    private final TrioRepository trioRepository;
-    private final QuintetRepository quintetRepository;
-    private final SoloInfoRepository soloInfoRepository;
-    private final DuoInfoRepository duoInfoRepository;
-    private final TrioInfoRepository trioInfoRepository;
-    private final QuintetInfoRepository quintetInfoRepository;
+    private final SoloMatchRepository soloMatchRepository;
+    private final DoubleMatchRepository doubleMatchRepository;
+    private final TripleMatchRepository tripleMatchRepository;
+    private final PentaMatchRepository pentaMatchRepository;
+    private final SoloCombiRepository soloCombiRepository;
+    private final DoubleCombiRepository doubleCombiRepository;
+    private final TripleCombiRepository tripleCombiRepository;
+    private final PentaCombiRepository pentaCombiRepository;
 
-
-    public void makeQuintetInfo(){
-        log.info("makeQuintetInfo-start");
-        List<QuintetEntity> quintetEntityList = quintetRepository.findAll();
-        log.info("makeDuoInfo - quintetRepository.findAll() end");
+    public void makeCombiInfo(int number,LocalDate yesterday) {
+        log.info("makeCombiInfo-start : " + number);
+        ICombiRepository combiRepository = getInfoRepository(number);
+        IMatchRepository matchRepository = getMatchRepository(number);
         ObjectMapper objectMapper = new ObjectMapper();
 
-        quintetEntityList.forEach(quintetEntity -> {
-            ICombinationInfoEntity quintetInfoEntity = null;
+        List<? extends IMatchEntity> matchEntitiyList = matchRepository.findAllByDate(yesterday);
+        log.info("makeCombiInfo - matchRepository.findAll() end");
+        matchEntitiyList.forEach(matchEntity -> {
+            ICombiEntity combiEntity = null;
             try {
-                quintetInfoEntity =  quintetInfoRepository.findByChampionIdAndPosition(objectMapper.writeValueAsString(quintetEntity.getChampionList()),objectMapper.writeValueAsString(quintetEntity.getPositionMap())).orElse(null);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-            if(quintetInfoEntity==null){
-                Perk perk = new Perk(quintetEntity.getPerkListMap(),1L);
-                Spell spell =new Spell(quintetEntity.getSpellListMap(),1L);
-                Item item = new Item(quintetEntity.getItemListMap(),1L);
-                List<Perk> perkList = new LinkedList<>();
-                List<Spell> spellList = new LinkedList<>();
-                List<Item> itemList = new LinkedList<>();
-                if(quintetEntity.getWin()){
-                    perkList.add(perk);
-                    spellList.add(spell);
-                    itemList.add(item);
-                    quintetInfoRepository.save(new QuintetInfoEntity(quintetEntity.getChampionList(),quintetEntity.getPositionMap(),1L,1L,perkList,spellList,itemList));
-                }
-                else{
-                    perk.setWin(0L);
-                    spell.setWin(0L);
-                    item.setWin(0L);
-                    perkList.add(perk);
-                    spellList.add(spell);
-                    itemList.add(item);
-                    quintetInfoRepository.save(new QuintetInfoEntity(quintetEntity.getChampionList(),quintetEntity.getPositionMap(),1L,0L,perkList,spellList,itemList));
-                }
-            }
-            else{
-                quintetInfoEntity.setAllCount(quintetInfoEntity.getAllCount()+1);
-                if(quintetEntity.getWin()){
-                    quintetInfoEntity.setWinCount(quintetInfoEntity.getWinCount()+1);
-                    updateItemList(quintetInfoEntity.getItemList(),quintetEntity.getItemListMap());
-                    updatePerkList(quintetInfoEntity.getPerkList(),quintetEntity.getPerkListMap());
-                    updateSpellList(quintetInfoEntity.getSpellList(),quintetEntity.getSpellListMap());
-                }
-                log.info("값 존재,수정 후 save: " );
-                quintetInfoRepository.save((QuintetInfoEntity) quintetInfoEntity);
-            }
-        });
-        log.info("makeQuintetInfo-end");
-    }
-    public void makeTrioInfo(){
-        log.info("makeTrioInfo-start");
-        List<TrioEntity> trioEntityList = trioRepository.findAll();
-        log.info("makeDuoInfo - trioRepository.findAll() end");
-        ObjectMapper objectMapper = new ObjectMapper();
-        trioEntityList.forEach(trioEntity -> {
-            ICombinationInfoEntity trioInfoEntity =null;
-            try {
-                trioInfoEntity = trioInfoRepository.findByChampionIdAndPosition(objectMapper.writeValueAsString(trioEntity.getChampionList()),objectMapper.writeValueAsString(trioEntity.getPositionMap())).orElse(null);
+                combiEntity = combiRepository.findByChampionIdAndPosition(objectMapper.writeValueAsString(matchEntity.getChampionList()), objectMapper.writeValueAsString(matchEntity.getPositionMap())).orElse(null);
             } catch (JsonProcessingException e) {
                 log.error("objectMapper writeValue error");
             }
-            if(trioInfoEntity==null){
-                Perk perk = new Perk(trioEntity.getPerkListMap(),1L);
-                Spell spell =new Spell(trioEntity.getSpellListMap(),1L);
-                Item item = new Item(trioEntity.getItemListMap(),1L);
+            if (combiEntity == null) {
+                combiEntity = getCombiEntity(number);
+                Perk perk = new Perk(matchEntity.getPerkListMap(), 1L, 1L);
+                Spell spell = new Spell(matchEntity.getSpellListMap(), 1L, 1L);
+                Item item = new Item(matchEntity.getItemListMap(), 1L, 1L);
                 List<Perk> perkList = new LinkedList<>();
                 List<Spell> spellList = new LinkedList<>();
                 List<Item> itemList = new LinkedList<>();
-                if(trioEntity.getWin()){
+                if (matchEntity.getWin()) {
                     perkList.add(perk);
                     spellList.add(spell);
                     itemList.add(item);
-                    trioInfoRepository.save(new TrioInfoEntity(trioEntity.getChampionList(),trioEntity.getPositionMap(),1L,1L,perkList,spellList,itemList));
+                    saveCombiEntity(number,combiEntity);
                 }
-                else{
+                else {
                     perk.setWin(0L);
                     spell.setWin(0L);
                     item.setWin(0L);
                     perkList.add(perk);
                     spellList.add(spell);
                     itemList.add(item);
-                    trioInfoRepository.save(new TrioInfoEntity(trioEntity.getChampionList(),trioEntity.getPositionMap(),1L,0L,perkList,spellList,itemList));
+                    saveCombiEntity(number,combiEntity);
                 }
             }
-            else{
-                trioInfoEntity.setAllCount(trioInfoEntity.getAllCount()+1);
-                if(trioEntity.getWin()){
-                    trioInfoEntity.setWinCount(trioInfoEntity.getWinCount()+1);
-                    updateItemList(trioInfoEntity.getItemList(),trioEntity.getItemListMap());
-                    updatePerkList(trioInfoEntity.getPerkList(),trioEntity.getPerkListMap());
-                    updateSpellList(trioInfoEntity.getSpellList(),trioEntity.getSpellListMap());
+            else {
+                combiEntity.setAllCount(combiEntity.getAllCount()+1);
+                if(matchEntity.getWin()) {
+                    combiEntity.setWinCount(combiEntity.getWinCount()+1);
+                    updateItemList(combiEntity.getItemList(),matchEntity.getItemListMap(),true);
+                    updatePerkList(combiEntity.getPerkList(),matchEntity.getPerkListMap(),true);
+                    updateSpellList(combiEntity.getSpellList(),matchEntity.getSpellListMap(),true);
                 }
-                log.info("값 존재,수정 후 save: " );
-                trioInfoRepository.save((TrioInfoEntity) trioInfoEntity);
+                else {
+                    combiEntity.setWinCount(combiEntity.getWinCount()+1);
+                    updateItemList(combiEntity.getItemList(),matchEntity.getItemListMap(),false);
+                    updatePerkList(combiEntity.getPerkList(),matchEntity.getPerkListMap(),false);
+                    updateSpellList(combiEntity.getSpellList(),matchEntity.getSpellListMap(),false);
+                }
+                saveCombiEntity(number,combiEntity);
             }
         });
-        log.info("makeTrioInfo-end");
+        log.info("makeCombiInfo-start : " + number);
     }
-    public void makeSoloInfo(){
-        log.info("makeSoloInfo-start");
-        //solo 날짜 추가하여 진행.
-        List<SoloEntity> soloEntityList = soloRepository.findAll();
-        soloEntityList.forEach(soloEntity -> {
-            SoloInfoEntity soloInfoEntity = soloInfoRepository.findByChampionIdAndPosition(soloEntity.getChampion(),soloEntity.getPosition()).orElse(null);
-
-            Map<Long,List<Long>> perkMap = new HashMap<>();
-            perkMap.put(soloEntity.getChampion(),soloEntity.getPerkList());
-
-            Map<Long, TreeSet<Long>> spellMap = new HashMap<>();
-            spellMap.put(soloEntity.getChampion(),soloEntity.getSpellList());
-
-            Map<Long, List<Long>> itemMap = new HashMap<>();
-            itemMap.put(soloEntity.getChampion(),soloEntity.getItemList());
-
-            if(soloInfoEntity==null){
-                Perk perk = new Perk(perkMap, soloEntity.getWin() ? 1L : 0L);
-                Spell spell =new Spell(spellMap,soloEntity.getWin() ? 1L : 0L);
-                Item item =new Item(itemMap,soloEntity.getWin() ? 1L : 0L);
-
-                List<Perk> perkList = new ArrayList<>();
-                List<Spell> spellList = new ArrayList<>();
-                List<Item> itemList = new ArrayList<>();
-
-                perkList.add(perk);
-                spellList.add(spell);
-                itemList.add(item);
-                log.info("soloInfo Save : championId = {}, position = {}, AllCount = {}, WinCount = {}", soloEntity.getPosition(), soloEntity.getPosition(), 1,1);
-                soloInfoRepository.save(new SoloInfoEntity(soloEntity.getChampion(), soloEntity.getPosition(),1L,soloEntity.getWin() ? 1L : 0L,perkList,spellList,itemList));
-            }
-            else{
-                soloInfoEntity.setAllCount(soloInfoEntity.getAllCount()+1);
-                if(soloEntity.getWin()){
-                    soloInfoEntity.setWinCount(soloInfoEntity.getWinCount()+1);
-                    updateItemList(soloInfoEntity.getItemList(),itemMap);
-                    updatePerkList(soloInfoEntity.getPerkList(),perkMap);
-                    updateSpellList(soloInfoEntity.getSpellList(),spellMap);
-                }
-                log.info("값 존재,수정 후 save: " );
-                log.info("soloInfo Update : championId = {}, position = {}, AllCount = {}, WinCount = {}", soloInfoEntity.getPosition(), soloInfoEntity.getPosition(), soloInfoEntity.getAllCount(),soloInfoEntity.getWinCount());
-                soloInfoRepository.save(soloInfoEntity);
-            }
-        });
-        log.info("makeSoloInfo-end");
+    public void saveCombiEntity(int number, ICombiEntity iCombiEntity){
+        if(number ==1) {
+            soloCombiRepository.save((SoloCombiEntity)iCombiEntity);
+        }
+        else if(number ==2) {
+            doubleCombiRepository.save((DoubleCombiEntity) iCombiEntity);
+        }
+        else if(number ==3) {
+            tripleCombiRepository.save( (TripleCombiEntity) iCombiEntity);
+        }
+        else if(number ==5) {
+            pentaCombiRepository.save( (PentaCombiEntity) iCombiEntity);
+        }
+        else {
+            log.info("saveCombiEntity - save faliled!");
+            return;
+        }
     }
-    public void makeDuoInfo()  {
-        log.info("makeDuoInfo-start");
-        List<DuoEntity> duoEntityList = duoRepository.findAll();
-        log.info("makeDuoInfo - duoRepository.findAll() end");
-        ObjectMapper objectMapper = new ObjectMapper();
-        duoEntityList.forEach(duoEntity -> {
-            ICombinationInfoEntity duoInfoEntity = null;
-            try {
-                duoInfoEntity = duoInfoRepository.findByChampionIdAndPosition(objectMapper.writeValueAsString(duoEntity.getChampion()),objectMapper.writeValueAsString(duoEntity.getPosition())).orElse(null);
-            } catch (JsonProcessingException e) {
-                log.error("objectMapper writeValue error");
-            }
-            if(duoInfoEntity==null){
-                Perk perk =new Perk(duoEntity.getPerkList(),1L);
-                Spell spell =new Spell(duoEntity.getSpellList(),1L);
-                Item item = new Item(duoEntity.getItemList(),1L);
-                List<Perk> perkList = new LinkedList<>();
-                List<Spell> spellList = new LinkedList<>();
-                List<Item> itemList = new LinkedList<>();
-                if(duoEntity.getWin()){
-                    perkList.add(perk);
-                    spellList.add(spell);
-                    itemList.add(item);
-                    duoInfoRepository.save(new DuoInfoEntity(duoEntity.getChampion(),duoEntity.getPosition(),1L,1L,perkList,spellList,itemList));
-                }
-                else{
-                    perk.setWin(0L);
-                    spell.setWin(0L);
-                    item.setWin(0L);
-                    perkList.add(perk);
-                    spellList.add(spell);
-                    itemList.add(item);
-                    duoInfoRepository.save(new DuoInfoEntity(duoEntity.getChampion(),duoEntity.getPosition(),1L,0L,perkList,spellList,itemList));
-                }
-            }
-            else{
-                duoInfoEntity.setAllCount(duoInfoEntity.getAllCount()+1);
-                if(duoEntity.getWin()){
-                    duoInfoEntity.setWinCount(duoInfoEntity.getWinCount()+1);
-                    updateItemList(duoInfoEntity.getItemList(),duoEntity.getItemList());
-                    updatePerkList(duoInfoEntity.getPerkList(),duoEntity.getPerkList());
-                    updateSpellList(duoInfoEntity.getSpellList(),duoEntity.getSpellList());
-                }
-                log.info("값 존재,수정 후 save: " );
-                duoInfoRepository.save((DuoInfoEntity) duoInfoEntity);
-            }
-        });
-        log.info("makeDuoInfo-end");
-    }
-
-
-
-    private void updateItemList(List<Item> infoItemList, Map<Long,List<Long>> itemList){
+    private void updateItemList(List<Item> infoItemList, Map<Long,List<Long>> itemList,boolean win){
         boolean isUpdated = false;
         for(int i = 0 ; i <infoItemList.size();i++){
             Item item = infoItemList.get(i);
             if(item.getItemMap().values().containsAll(itemList.values())){
-                infoItemList.get(i).setWin(item.getWin()+1);
+                if(win)
+                    infoItemList.get(i).setWin(item.getWin()+1);
+                infoItemList.get(i).setAllCount(item.getAllCount()+1);
                 isUpdated =true;
                 break;
             }
         }
         if(!isUpdated){
-            infoItemList.add(new Item(itemList,1L));
+            if(win)
+                infoItemList.add(new Item(itemList,1L,1L));
+            else
+                infoItemList.add(new Item(itemList,0L,1L));
         }
     }
 
-    private void updatePerkList(List<Perk> infoPerkList, Map<Long,List<Long>> perkList){
+    private void updatePerkList(List<Perk> infoPerkList, Map<Long,List<Long>> perkList,boolean win){
         boolean isUpdated =false;
         for(int i = 0 ; i < infoPerkList.size();i++){
             Perk perk = infoPerkList.get(i);
             if(perk.getPerkMap().values().containsAll(perkList.values())){
-                infoPerkList.get(i).setWin(perk.getWin()+1);
+                if(win)
+                    infoPerkList.get(i).setWin(perk.getWin()+1);
+                infoPerkList.get(i).setAllCount(perk.getAllCount()+1);
                 isUpdated=true;
                 break;
             }
         }
         if(!isUpdated){
-            infoPerkList.add(new Perk(perkList,1L));
+            if(win)
+                infoPerkList.add(new Perk(perkList,1L,1L));
+            else
+                infoPerkList.add(new Perk(perkList,0L,1L));
+
         }
     }
-    private void updateSpellList(List<Spell> infoSpellList, Map<Long, TreeSet<Long>> spellList){
+    private void updateSpellList(List<Spell> infoSpellList, Map<Long, TreeSet<Long>> spellList,boolean win){
         boolean isUpdated =false;
         for(int i = 0 ; i < infoSpellList.size();i++){
             Spell spell = infoSpellList.get(i);
             if(spell.getSpellMap().values().containsAll(spellList.values())){
-                infoSpellList.get(i).setWin(spell.getWin()+1);
+                if(win)
+                    infoSpellList.get(i).setWin(spell.getWin()+1);
+                infoSpellList.get(i).setAllCount(spell.getAllCount());
                 isUpdated=true;
                 break;
             }
         }
         if(!isUpdated){
-            infoSpellList.add(new Spell(spellList,1L));
+            if(win)
+                infoSpellList.add(new Spell(spellList,1L,1L));
+            else
+                infoSpellList.add(new Spell(spellList,0L,1L));
+        }
+    }
+
+    private ICombiRepository getInfoRepository(int championCount) {
+        if (championCount == 1) {
+            log.info("getInfoRepository() - championCount : {}, 1명", championCount);
+            return soloCombiRepository;
+        }
+        else if (championCount == 2) {
+            log.info("getInfoRepository() - championCount : {}, 2명", championCount);
+            return doubleCombiRepository;
+        }
+        else if (championCount == 3) {
+            log.info("getInfoRepository() - championCount : {}, 3명", championCount);
+            return tripleCombiRepository;
+        }
+        else if (championCount == 5) {
+            log.info("getInfoRepository() - championCount : {}, 5명", championCount);
+            return pentaCombiRepository;
+        }
+        else {
+            log.info("getInfoRepository() - 요청 문제 발생");
+            return null;
+        }
+    }
+    private IMatchRepository getMatchRepository(int championCount) {
+        if (championCount == 1) {
+            log.info("getMatchRepository() - championCount : {}, 1명", championCount);
+            return soloMatchRepository;
+        }
+        else if (championCount == 2) {
+            log.info("getMatchRepository() - championCount : {}, 2명", championCount);
+            return doubleMatchRepository;
+        }
+        else if (championCount == 3) {
+            log.info("getMatchRepository() - championCount : {}, 3명", championCount);
+            return tripleMatchRepository;
+        }
+        else if (championCount == 5) {
+            log.info("getMatchRepository() - championCount : {}, 5명", championCount);
+            return pentaMatchRepository;
+        }
+        else {
+            log.info("getMatchRepository() - 요청 문제 발생");
+            return null;
+        }
+    }
+    private ICombiEntity getCombiEntity(int championCount){
+        if (championCount == 1) {
+            log.info("getMatchRepository() - championCount : {}, 1명", championCount);
+            return new SoloCombiEntity();
+        }
+        else if (championCount == 2) {
+            log.info("getMatchRepository() - championCount : {}, 2명", championCount);
+            return new DoubleCombiEntity();
+        }
+        else if (championCount == 3) {
+            log.info("getMatchRepository() - championCount : {}, 3명", championCount);
+            return new TripleCombiEntity();
+        }
+        else if (championCount == 5) {
+            log.info("getMatchRepository() - championCount : {}, 5명", championCount);
+            return new PentaCombiEntity();
+        }
+        else {
+            log.info("getMatchRepository() - 요청 문제 발생");
+            return null;
         }
     }
 }
