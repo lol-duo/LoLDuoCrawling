@@ -3,6 +3,7 @@ spring:
     group:
       local: "localdb,common"
       server: "serverdb,common"
+      devserver : "devserverdb,common"
     active: local
 
 ---
@@ -33,6 +34,16 @@ spring:
   config:
     activate:
       on-profile: serverdb
+aws:
+  secretsmanager:
+    name: lolduo_server
+    enabled: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: devserverdb
 aws:
   secretsmanager:
     name: lolduo_server

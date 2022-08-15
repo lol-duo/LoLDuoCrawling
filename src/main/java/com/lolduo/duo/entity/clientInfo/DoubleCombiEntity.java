@@ -15,10 +15,10 @@ import java.util.*;
 
 @Entity
 @NoArgsConstructor
-@Table(name = "duo_info")
+@Table(name = "double_combi")
 @Getter
 @TypeDef(name = "json", typeClass = JsonType.class,defaultForType = JsonNode.class)
-public class DuoInfoEntity implements ICombinationInfoEntity {
+public class DoubleCombiEntity implements ICombiEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -60,7 +60,7 @@ public class DuoInfoEntity implements ICombinationInfoEntity {
         this.winCount = winCount;
     }
 
-    public DuoInfoEntity(TreeSet<Long> championId, Map<Long, String> position, Long allCount, Long winCount, List<Perk> perkList, List<Spell> spellList, List<Item> itemList) {
+    public DoubleCombiEntity(TreeSet<Long> championId, Map<Long, String> position, Long allCount, Long winCount, List<Perk> perkList, List<Spell> spellList, List<Item> itemList) {
         this.championId = championId;
         this.position = position;
         this.allCount = allCount;
