@@ -125,54 +125,59 @@ public class RiotService implements ApplicationRunner{
 
         LocalDate yesterday = LocalDate.ofInstant(Instant.ofEpochSecond(startTime), ZoneId.of("Asia/Seoul"));
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger list 가져오기 start");
-        //log.info("get challenger start");
-        //getPuuIdList("challenger");
+        log.info("get challenger start");
+        getPuuIdList("challenger");
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "grandmaster list 가져오기 start");
-        //log.info("get grandmaster start");
-        //getPuuIdList("grandmaster");
+        log.info("get grandmaster start");
+        getPuuIdList("grandmaster");
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "master list 가져오기 start");
-        //log.info("get master start");
-        //getPuuIdList("master");
+        log.info("get master start");
+        getPuuIdList("master");
 
         Set<String> matchIdList = new HashSet<>();
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger matchId 만들기 start");
         log.info("make challenger matchIList start");
-        //matchIdList.addAll(getMatchId(startTime,endTime,"challenger"));
+        matchIdList.addAll(getMatchId(startTime,endTime,"challenger"));
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "grandmaster matchId 만들기 start");
-        //log.info("make grandmaster matchIList start");
-        //matchIdList.addAll(getMatchId(startTime,endTime,"grandmaster"));
+        log.info("make grandmaster matchIList start");
+        matchIdList.addAll(getMatchId(startTime,endTime,"grandmaster"));
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "master matchId 만들기 start");
-        //log.info("make master matchIList start");
-        //matchIdList.addAll(getMatchId(startTime,endTime,"master"));
+        log.info("make master matchIList start");
+        matchIdList.addAll(getMatchId(startTime,endTime,"master"));
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "matchId 만들기 start");
         log.info("getMatch Info start : matchListSize : " +matchIdList.size());
-        //getMatchInfo(matchIdList);
+        getMatchInfo(matchIdList);
 
 
         log.info("matchDetail 저장완료 ");
         log.info("1차 가공 start");
-        //setMatchInfo(1);
-        //setMatchInfo(2);
-        //setMatchInfo(3);
-        //setMatchInfo(5);
+        setMatchInfo(1);
+        setMatchInfo(2);
+        setMatchInfo(3);
+        setMatchInfo(5);
 
         log.info("1차 가공 end\n 2차 가공 start");
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "SoloInfo 만들기 start");
+
+        log.info("CombiInfo : Solo make");
         infoService.makeCombiInfo(1,yesterday);
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "DuoInfo 만들기 start");
+        log.info("CombiInfo : Double make");
         infoService.makeCombiInfo(2,yesterday);
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "TrioInfo 만들기 start");
+        log.info("CombiInfo : Triple make");
         infoService.makeCombiInfo(3,yesterday);
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "QuintetInfo 만들기 start");
+        log.info("CombiInfo : Penta make");
         infoService.makeCombiInfo(5,yesterday);
         log.info("2차 가공 end");
     }
