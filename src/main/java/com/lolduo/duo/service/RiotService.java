@@ -124,55 +124,55 @@ public class RiotService implements ApplicationRunner{
         Long startTime = endTime - 86400;
 
         LocalDate yesterday = LocalDate.ofInstant(Instant.ofEpochSecond(startTime), ZoneId.of("Asia/Seoul"));
-        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger list 가져오기 start");
-        log.info("get challenger start");
-        getPuuIdList("challenger");
+        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger list 가져오기 start");
+        //log.info("get challenger start");
+        //getPuuIdList("challenger");
 
-        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "grandmaster list 가져오기 start");
-        log.info("get grandmaster start");
+        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "grandmaster list 가져오기 start");
+        //log.info("get grandmaster start");
         //getPuuIdList("grandmaster");
 
-        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "master list 가져오기 start");
-        log.info("get master start");
+        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "master list 가져오기 start");
+        //log.info("get master start");
         //getPuuIdList("master");
 
         Set<String> matchIdList = new HashSet<>();
 
-        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger matchId 만들기 start");
+        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger matchId 만들기 start");
         log.info("make challenger matchIList start");
-        matchIdList.addAll(getMatchId(startTime,endTime,"challenger"));
+        //matchIdList.addAll(getMatchId(startTime,endTime,"challenger"));
 
-        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "grandmaster matchId 만들기 start");
-        log.info("make grandmaster matchIList start");
+        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "grandmaster matchId 만들기 start");
+        //log.info("make grandmaster matchIList start");
         //matchIdList.addAll(getMatchId(startTime,endTime,"grandmaster"));
 
-        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "master matchId 만들기 start");
-        log.info("make master matchIList start");
+        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "master matchId 만들기 start");
+        //log.info("make master matchIList start");
         //matchIdList.addAll(getMatchId(startTime,endTime,"master"));
 
-        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "matchId 만들기 start");
-        log.info("getMatch Info start");
-        getMatchInfo(matchIdList);
+        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "matchId 만들기 start");
+        log.info("getMatch Info start : matchListSize : " +matchIdList.size());
+        //getMatchInfo(matchIdList);
 
 
         log.info("matchDetail 저장완료 ");
         log.info("1차 가공 start");
-        setMatchInfo(1);
-        setMatchInfo(2);
-        setMatchInfo(3);
-        setMatchInfo(5);
+        //setMatchInfo(1);
+        //setMatchInfo(2);
+        //setMatchInfo(3);
+        //setMatchInfo(5);
 
         log.info("1차 가공 end\n 2차 가공 start");
-        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "SoloInfo 만들기 start");
+        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "SoloInfo 만들기 start");
         infoService.makeCombiInfo(1,yesterday);
 
-        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "DuoInfo 만들기 start");
+        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "DuoInfo 만들기 start");
         infoService.makeCombiInfo(2,yesterday);
 
-        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "TrioInfo 만들기 start");
+        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "TrioInfo 만들기 start");
         infoService.makeCombiInfo(3,yesterday);
 
-        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "QuintetInfo 만들기 start");
+        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "QuintetInfo 만들기 start");
         infoService.makeCombiInfo(5,yesterday);
         log.info("2차 가공 end");
     }
@@ -261,9 +261,9 @@ public class RiotService implements ApplicationRunner{
             } catch(InterruptedException e){
                 throw new RuntimeException(e);
             }
-            response = restTemplate.exchange(url_tier, HttpMethod.GET, requestEntity, LeagueEntryDTO[].class);
+            response = restTemplate.exchange(url_tier+summonerId, HttpMethod.GET, requestEntity, LeagueEntryDTO[].class);
         }catch (Exception e){
-            log.info("에러발생 : {}",e.getMessage());
+            log.info("getTierBySummonerId 에러발생 : {}",e.getMessage());
             return "default";
         }
         for(int i = 0 ; i< response.getBody().length;i++){
@@ -292,6 +292,8 @@ public class RiotService implements ApplicationRunner{
             loLUserEntity = lolUserRepository.findById(participant.getPuuid()).orElse(null);
             if(loLUserEntity==null){
                 String tier = getTierBySummonerId(participant.getSummonerId());
+                log.info(tier);
+                if(tier==null)
                 tierNum += tierNumList.get(tier);
                 lolUserRepository.save(new LoLUserEntity(participant.getPuuid(),tier));
             }
@@ -413,7 +415,7 @@ public class RiotService implements ApplicationRunner{
         try{
             response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, LeagueListDTO.class);
         }catch (Exception e){
-            log.info("에러발생 : {}",e.getMessage());
+            log.info("getPuuIdList 에러발생 : {}",e.getMessage());
             return;
         }
         response.getBody().getEntries().forEach(leagueItemDTO -> {
@@ -427,7 +429,7 @@ public class RiotService implements ApplicationRunner{
             try{
                 puuid = restTemplate.exchange(url_summoner + leagueItemDTO.getSummonerId(), HttpMethod.GET, requestEntity, SummonerDTO.class).getBody().getPuuid();
             }catch (Exception e){
-                log.info("에러발생 summuner: {}",e.getMessage());
+                log.info("getPuuIdList 에러발생 summuner: {}",e.getMessage());
                 return;
             }
 
@@ -462,7 +464,7 @@ public class RiotService implements ApplicationRunner{
             try {
                 response = restTemplate.exchange(url + puuid + "/ids?startTime=" + startTime + "&endTime=" + endTime + "&type=ranked&start=0&count=100", HttpMethod.GET, requestEntity, List.class);
             }catch (Exception e) {
-                log.info("에러발생 : {}",e.getMessage());
+                log.info("getMatchId 에러발생 : {}",e.getMessage());
                 return;
             }
 
@@ -502,7 +504,7 @@ public class RiotService implements ApplicationRunner{
         for(String championId : championIdList){
             championRepository.save(new ChampionEntity(Long.parseLong(championList.getBody().getData().get(championId).getKey()), championList.getBody().getData().get(championId).getName(),championId + ".png"));
         }
-        championRepository.save(new ChampionEntity(0L,"A","A.png"));
+        championRepository.save(new ChampionEntity(0L,"ALL","ALL.png"));
     }
     private void setSpell(){
         String url = "https://ddragon.leagueoflegends.com/cdn/"+version+"/data/ko_KR/summoner.json";

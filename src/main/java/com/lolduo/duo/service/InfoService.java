@@ -46,6 +46,7 @@ public class InfoService {
                 log.error("objectMapper writeValue error");
             }
             if (combiEntity == null) {
+                combiEntity = getCombiEntity(number);
                 Perk perk = new Perk(matchEntity.getPerkListMap(), 1L, 1L);
                 Spell spell = new Spell(matchEntity.getSpellListMap(), 1L, 1L);
                 Item item = new Item(matchEntity.getItemListMap(), 1L, 1L);
@@ -203,6 +204,28 @@ public class InfoService {
         else if (championCount == 5) {
             log.info("getMatchRepository() - championCount : {}, 5명", championCount);
             return pentaMatchRepository;
+        }
+        else {
+            log.info("getMatchRepository() - 요청 문제 발생");
+            return null;
+        }
+    }
+    private ICombiEntity getCombiEntity(int championCount){
+        if (championCount == 1) {
+            log.info("getMatchRepository() - championCount : {}, 1명", championCount);
+            return new SoloCombiEntity();
+        }
+        else if (championCount == 2) {
+            log.info("getMatchRepository() - championCount : {}, 2명", championCount);
+            return new DoubleCombiEntity();
+        }
+        else if (championCount == 3) {
+            log.info("getMatchRepository() - championCount : {}, 3명", championCount);
+            return new TripleCombiEntity();
+        }
+        else if (championCount == 5) {
+            log.info("getMatchRepository() - championCount : {}, 5명", championCount);
+            return new PentaCombiEntity();
         }
         else {
             log.info("getMatchRepository() - 요청 문제 발생");
