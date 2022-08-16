@@ -189,6 +189,32 @@ public class RiotService implements ApplicationRunner{
                 itemFullRepository.save(new ItemFullEntity(Long.parseLong(itemId)));
             }
         }
+        //신화 추가 부분, 신화는 오른때문에 진화트리가 있어버려서, ddr api만으로는 신화구분이 어려움.따라서 직접 추가.
+        itemFullRepository.save(new ItemFullEntity(6630L));
+        itemFullRepository.save(new ItemFullEntity(6631L));
+        itemFullRepository.save(new ItemFullEntity(6632L));
+        itemFullRepository.save(new ItemFullEntity(3078L));
+        itemFullRepository.save(new ItemFullEntity(6671L));
+        itemFullRepository.save(new ItemFullEntity(6672L));
+        itemFullRepository.save(new ItemFullEntity(6673L));
+        itemFullRepository.save(new ItemFullEntity(6691L));
+        itemFullRepository.save(new ItemFullEntity(6692L));
+        itemFullRepository.save(new ItemFullEntity(6693L));
+        itemFullRepository.save(new ItemFullEntity(6653L));
+        itemFullRepository.save(new ItemFullEntity(6655L));
+        itemFullRepository.save(new ItemFullEntity(6656L));
+        itemFullRepository.save(new ItemFullEntity(4644L));
+        itemFullRepository.save(new ItemFullEntity(3145L));
+        itemFullRepository.save(new ItemFullEntity(4633L));
+        itemFullRepository.save(new ItemFullEntity(4636L));
+        itemFullRepository.save(new ItemFullEntity(6662L));
+        itemFullRepository.save(new ItemFullEntity(6664L));
+        itemFullRepository.save(new ItemFullEntity(3068L));
+        itemFullRepository.save(new ItemFullEntity(2065L));
+        itemFullRepository.save(new ItemFullEntity(3190L));
+        itemFullRepository.save(new ItemFullEntity(3001L));
+        itemFullRepository.save(new ItemFullEntity(4005L));
+        itemFullRepository.save(new ItemFullEntity(6617L));
     }
     private void getMatchInfo(Set<String> matchIdList){
         String url = "https://asia.api.riotgames.com/lol/match/v5/matches/";
@@ -283,13 +309,22 @@ public class RiotService implements ApplicationRunner{
         tierNumList.put("grandmaster", 2L);
         tierNumList.put("master", 3L);
         tierNumList.put("diamond", 4L);
+        tierNumList.put("platinum",5L);
+        tierNumList.put("gold",6L);
+        tierNumList.put("silver",7L);
+        tierNumList.put("bronze",8L);
+        tierNumList.put("iron",9L);
         tierNumList.put("default", 4L);
         Map<Integer, String> tierNameList =  new HashMap<>();
         tierNameList.put(1, "challenger");
         tierNameList.put(2, "grandmaster");
         tierNameList.put(3, "master");
         tierNameList.put(4,"diamond");
-
+        tierNameList.put(5,"platinum");
+        tierNameList.put(6,"gold");
+        tierNameList.put(7,"silver");
+        tierNameList.put(8,"bronze");
+        tierNameList.put(9,"iron");
         Long tierNum = 0L;
         List<Participant> participantList = matchDto.getInfo().getParticipants();
         LoLUserEntity loLUserEntity = null ;
@@ -297,9 +332,14 @@ public class RiotService implements ApplicationRunner{
             loLUserEntity = lolUserRepository.findById(participant.getPuuid()).orElse(null);
             if(loLUserEntity==null){
                 String tier = getTierBySummonerId(participant.getSummonerId());
-                log.info(tier);
-                if(tier==null)
-                tierNum += tierNumList.get(tier);
+                log.info("getTierBySummonerId 결과 : " + tier);
+                Long number = 0L;
+                if(tierNumList.get(tier) ==null) {
+                    tierNum += 4;
+                }
+                else{
+                    tierNum += tierNumList.get(tier);
+                }
                 lolUserRepository.save(new LoLUserEntity(participant.getPuuid(),tier));
             }
             else{
@@ -308,7 +348,6 @@ public class RiotService implements ApplicationRunner{
         }
         return tierNameList.get(Math.round(tierNum/ 10));
     }
-
     private void setMatchInfo(int number) {
         List<MatchEntity> matchEntity = matchDetailRepository.findAllByDate(LocalDate.now(ZoneId.of("Asia/Seoul")));
         matchEntity.forEach(match -> {
