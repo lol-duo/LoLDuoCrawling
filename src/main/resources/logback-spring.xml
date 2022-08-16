@@ -25,7 +25,7 @@
         </root>
     </springProfile>
 
-    <springProfile name="devserver">
+    <springProfile name="devserverdb">
         <root level="INFO">
             <appender-ref ref="STDOUT_JSON"/>
         </root>
