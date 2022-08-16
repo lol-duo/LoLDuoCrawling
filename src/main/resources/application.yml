@@ -85,7 +85,7 @@ spring:
     password: ${rds.mariadb.password}
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     defer-datasource-initialization: true
     show-sql: true
 slack:

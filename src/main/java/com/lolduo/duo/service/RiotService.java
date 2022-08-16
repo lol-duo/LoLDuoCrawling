@@ -122,45 +122,43 @@ public class RiotService implements ApplicationRunner{
     private void All(){
         Long endTime = System.currentTimeMillis() / 1000;
         Long startTime = endTime - 86400;
-
+        Set<String> matchIdList = new HashSet<>();
         LocalDate yesterday = LocalDate.ofInstant(Instant.ofEpochSecond(startTime), ZoneId.of("Asia/Seoul"));
-        /*
+
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger list 가져오기 start");
         log.info("get challenger start");
         getPuuIdList("challenger");
-
-        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "grandmaster list 가져오기 start");
-        log.info("get grandmaster start");
-        getPuuIdList("grandmaster");
-
-        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "master list 가져오기 start");
-        log.info("get master start");
-        getPuuIdList("master");
-
-        Set<String> matchIdList = new HashSet<>();
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger matchId 만들기 start");
         log.info("make challenger matchIList start");
         matchIdList.addAll(getMatchId(startTime,endTime,"challenger"));
         getMatchInfo(matchIdList);
-        
-        
+
+        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "grandmaster list 가져오기 start");
+        log.info("get grandmaster start");
+        getPuuIdList("grandmaster");
+
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "grandmaster matchId 만들기 start");
         log.info("make grandmaster matchIList start");
         matchIdList = new HashSet<>();
         matchIdList.addAll(getMatchId(startTime,endTime,"grandmaster"));
         getMatchInfo(matchIdList);
+
+        /*
+        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "master list 가져오기 start");
+        log.info("get master start");
+        getPuuIdList("master");
         
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "master matchId 만들기 start");
         log.info("make master matchIList start");
         matchIdList = new HashSet<>();
         matchIdList.addAll(getMatchId(startTime,endTime,"master"));
         getMatchInfo(matchIdList);
-        
+        */
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "matchId 만들기 start");
         log.info("getMatch Info start : matchListSize : " +matchIdList.size());
         getMatchInfo(matchIdList);
-         */
+
 
         log.info("matchDetail 저장완료 ");
         log.info("1차 가공 start");
