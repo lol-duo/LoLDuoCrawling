@@ -86,7 +86,7 @@ public class InfoService {
                 saveCombiEntity(number,combiEntity);
             }
         });
-        log.info("makeCombiInfo-start : " + number);
+        log.info("makeCombiInfo-end : " + number);
     }
     public void saveCombiEntity(int number, ICombiEntity iCombiEntity){
         if(number ==1) {

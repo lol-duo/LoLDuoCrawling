@@ -124,17 +124,18 @@ public class RiotService implements ApplicationRunner{
         Long startTime = endTime - 86400;
 
         LocalDate yesterday = LocalDate.ofInstant(Instant.ofEpochSecond(startTime), ZoneId.of("Asia/Seoul"));
+        /*
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger list 가져오기 start");
-        //log.info("get challenger start");
-        //getPuuIdList("challenger");
+        log.info("get challenger start");
+        getPuuIdList("challenger");
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "grandmaster list 가져오기 start");
-        //log.info("get grandmaster start");
-        //getPuuIdList("grandmaster");
+        log.info("get grandmaster start");
+        getPuuIdList("grandmaster");
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "master list 가져오기 start");
-        //log.info("get master start");
-        //getPuuIdList("master");
+        log.info("get master start");
+        getPuuIdList("master");
 
         Set<String> matchIdList = new HashSet<>();
 
@@ -159,7 +160,7 @@ public class RiotService implements ApplicationRunner{
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "matchId 만들기 start");
         log.info("getMatch Info start : matchListSize : " +matchIdList.size());
         getMatchInfo(matchIdList);
-
+         */
 
         log.info("matchDetail 저장완료 ");
         log.info("1차 가공 start");
