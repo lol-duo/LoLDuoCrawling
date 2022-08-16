@@ -3,6 +3,7 @@ spring:
     group:
       local: "localdb,common"
       server: "serverdb,common"
+      devserver : "devserverdb,common"
     active: local
 logging:
   level:
