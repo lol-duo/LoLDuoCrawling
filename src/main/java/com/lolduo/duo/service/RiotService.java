@@ -355,6 +355,7 @@ public class RiotService implements ApplicationRunner{
     }
     private void setMatchInfo(int number) {
         List<MatchEntity> matchEntity = matchDetailRepository.findAllByDate(LocalDate.now(ZoneId.of("Asia/Seoul")));
+        log.info("setMatchInfo function number = " + number +" matchEntity size : " + matchEntity.size());
         matchEntity.forEach(match -> {
             MatchDto matchDto = match.getMatchInfo();
             List<List<Long>> playerItemList = match.getPlayerItemList();
@@ -516,7 +517,7 @@ public class RiotService implements ApplicationRunner{
                 log.info("getMatchId 에러발생 : {}",e.getMessage());
                 return;
             }
-
+            log.info("getMatchId : matchId added Success . MatchList size() :"+ response.getBody().size());
             matchList.addAll(response.getBody());
         });
         return matchList;
