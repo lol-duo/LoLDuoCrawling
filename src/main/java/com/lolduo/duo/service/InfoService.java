@@ -76,7 +76,7 @@ public class InfoService {
         log.info(number + " MatchSize : " + matchSize);
         while(start < matchSize) {
             List<? extends IMatchEntity> matchEntitiyList = matchRepository.findAllByDate(yesterday, start);
-            log.info("makeCombiInfo - matchRepository.findAll() , size : " + matchEntitiyList.size());
+            log.info(number + " makeCombiInfo - matchRepository.findAll() , size : " + start+ " / " + matchSize);
             matchEntitiyList.forEach(matchEntity -> {
                 ICombiEntity combiEntity = null;
                 try {
