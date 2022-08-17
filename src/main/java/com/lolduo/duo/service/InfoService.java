@@ -91,7 +91,6 @@ public class InfoService {
                     updateSpellList(combiEntity.getSpellList(),matchEntity.getSpellListMap(),true);
                 }
                 else {
-                    combiEntity.setWinCount(combiEntity.getWinCount()+1);
                     updateItemList(combiEntity.getItemList(),matchEntity.getItemListMap(),false);
                     updatePerkList(combiEntity.getPerkList(),matchEntity.getPerkListMap(),false);
                     updateSpellList(combiEntity.getSpellList(),matchEntity.getSpellListMap(),false);
