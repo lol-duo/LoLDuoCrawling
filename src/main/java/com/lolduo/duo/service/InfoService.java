@@ -36,8 +36,9 @@ public class InfoService {
         IMatchRepository matchRepository = getMatchRepository(number);
         ObjectMapper objectMapper = new ObjectMapper();
 
+        log.info("before makeCombiInfo - matchRepository.findAll() " + number );
         List<? extends IMatchEntity> matchEntitiyList = matchRepository.findAllByDate(yesterday);
-        log.info("makeCombiInfo - matchRepository.findAll() size : " + matchEntitiyList.size());
+        log.info("makeCombiInfo - matchRepository.findAll() , size : " + matchEntitiyList.size());
         matchEntitiyList.forEach(matchEntity -> {
             ICombiEntity combiEntity = null;
             try {
@@ -45,7 +46,7 @@ public class InfoService {
             } catch (JsonProcessingException e) {
                 log.error("objectMapper writeValue error");
             }
-            if (combiEntity == null) {
+            if (combiEntity == null || combiEntity.getAllCount()==null) {
                 log.info("combiEntity is null ");
                 combiEntity = getCombiEntity(number);
                 Perk perk = new Perk(matchEntity.getPerkListMap(), 1L, 1L);

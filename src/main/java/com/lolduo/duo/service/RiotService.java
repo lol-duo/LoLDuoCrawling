@@ -132,7 +132,7 @@ public class RiotService implements ApplicationRunner{
         Date d = null;
         LocalDate localDate = null;
         try {
-            d = dateFormat.parse("2022-08-16");
+            d = dateFormat.parse("2022-08-17");
             localDate = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         } catch (ParseException e) {
             throw new RuntimeException(e);
