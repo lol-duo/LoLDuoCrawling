@@ -79,11 +79,24 @@ public class RiotService implements ApplicationRunner{
     @Override
     public void run(ApplicationArguments args) throws Exception{
         setVersion("12.14.1");
-        setItem();
-        setChampion();
-        setSpell();
-        setPerk();
-        All();
+        //setItem();
+        //setChampion();
+        //setSpell();
+        //setPerk();
+        //All();
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date d = null;
+        LocalDate localDate = null;
+        try {
+            d = dateFormat.parse("2022-08-16");
+            localDate = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+        log.info("test");
+        List<DoubleMatchEntity> list = doubleMatchRepository.findAllByDate(localDate);
+        log.info("list size : " + list.size());
         //test();
         log.info("ready");
     }
