@@ -31,75 +31,82 @@ public class InfoService {
     private final TripleCombiRepository tripleCombiRepository;
     private final PentaCombiRepository pentaCombiRepository;
 
+    private ICombiEntity makeNewCombiEntity(int number,IMatchEntity matchEntity,boolean isWin){
+        ICombiEntity temp = getCombiEntity(number);
+        Perk perk = new Perk(matchEntity.getPerkListMap(), 1L, 1L);
+        Spell spell = new Spell(matchEntity.getSpellListMap(), 1L, 1L);
+        Item item = new Item(matchEntity.getItemListMap(), 1L, 1L);
+        List<Perk> perkList = new LinkedList<>();
+        List<Spell> spellList = new LinkedList<>();
+        List<Item> itemList = new LinkedList<>();
+        temp.setAllCount(1L);
+        temp.setChampionIdList(matchEntity.getChampionList());
+        temp.setPositionMap(matchEntity.getPositionMap());
+        if (matchEntity.getWin()) {
+            perkList.add(perk);
+            spellList.add(spell);
+            itemList.add(item);
+            temp.setPerkList(perkList);
+            temp.setItemList(itemList);
+            temp.setSpellList(spellList);
+            temp.setWinCount(1L);
+        }
+        else{
+            perk.setWin(0L);
+            spell.setWin(0L);
+            item.setWin(0L);
+            perkList.add(perk);
+            spellList.add(spell);
+            itemList.add(item);
+            temp.setPerkList(perkList);
+            temp.setItemList(itemList);
+            temp.setSpellList(spellList);
+            temp.setWinCount(0L);
+        }
+        return temp;
+    }
     public void makeCombiInfo(int number,LocalDate yesterday) {
         log.info("makeCombiInfo-start : " + number);
         ICombiRepository combiRepository = getInfoRepository(number);
         IMatchRepository matchRepository = getMatchRepository(number);
         ObjectMapper objectMapper = new ObjectMapper();
 
-        log.info("before makeCombiInfo - matchRepository.findAll() " + number );
-        List<? extends IMatchEntity> matchEntitiyList = matchRepository.findAllByDate(yesterday);
-        log.info("makeCombiInfo - matchRepository.findAll() , size : " + matchEntitiyList.size());
-        matchEntitiyList.forEach(matchEntity -> {
-            ICombiEntity combiEntity = null;
-            try {
-                combiEntity = combiRepository.findByChampionIdAndPosition(objectMapper.writeValueAsString(matchEntity.getChampionList()), objectMapper.writeValueAsString(matchEntity.getPositionMap())).orElse(null);
-            } catch (JsonProcessingException e) {
-                log.error("objectMapper writeValue error");
-            }
-            if (combiEntity == null || combiEntity.getAllCount()==null) {
-                log.info("combiEntity is null ");
-                combiEntity = getCombiEntity(number);
-                Perk perk = new Perk(matchEntity.getPerkListMap(), 1L, 1L);
-                Spell spell = new Spell(matchEntity.getSpellListMap(), 1L, 1L);
-                Item item = new Item(matchEntity.getItemListMap(), 1L, 1L);
-                List<Perk> perkList = new LinkedList<>();
-                List<Spell> spellList = new LinkedList<>();
-                List<Item> itemList = new LinkedList<>();
-                combiEntity.setAllCount(1L);
-                combiEntity.setChampionIdList(matchEntity.getChampionList());
-                combiEntity.setPositionMap(matchEntity.getPositionMap());
-                if (matchEntity.getWin()) {
-                    perkList.add(perk);
-                    spellList.add(spell);
-                    itemList.add(item);
-                    combiEntity.setPerkList(perkList);
-                    combiEntity.setItemList(itemList);
-                    combiEntity.setSpellList(spellList);
-                    combiEntity.setWinCount(1L);
-                    saveCombiEntity(number,combiEntity);
+        Long start = 0L ;
+        Long matchSize = matchRepository.findSizeByDate(yesterday).orElse(0L);
+        log.info(number + " MatchSize : " + matchSize);
+        while(start < matchSize) {
+            List<? extends IMatchEntity> matchEntitiyList = matchRepository.findAllByDate(yesterday, start);
+            log.info("makeCombiInfo - matchRepository.findAll() , size : " + matchEntitiyList.size());
+            matchEntitiyList.forEach(matchEntity -> {
+                ICombiEntity combiEntity = null;
+                try {
+                    combiEntity = combiRepository.findByChampionIdAndPosition(objectMapper.writeValueAsString(matchEntity.getChampionList()), objectMapper.writeValueAsString(matchEntity.getPositionMap())).orElse(null);
+                } catch (JsonProcessingException e) {
+                    log.error("objectMapper writeValue error");
                 }
-                else {
-                    perk.setWin(0L);
-                    spell.setWin(0L);
-                    item.setWin(0L);
-                    perkList.add(perk);
-                    spellList.add(spell);
-                    itemList.add(item);
-                    combiEntity.setPerkList(perkList);
-                    combiEntity.setItemList(itemList);
-                    combiEntity.setSpellList(spellList);
-                    combiEntity.setWinCount(0L);
-                    saveCombiEntity(number,combiEntity);
+                if (combiEntity == null || combiEntity.getAllCount() == null) {
+                    log.info("combiEntity is null ");
+                    combiEntity = makeNewCombiEntity(number, matchEntity, matchEntity.getWin());
+                    saveCombiEntity(number, combiEntity);
+                } else {
+                    combiEntity.setAllCount(combiEntity.getAllCount() + 1);
+                    if (matchEntity.getWin()) {
+                        combiEntity.setWinCount(combiEntity.getWinCount() + 1);
+                        updateItemList(combiEntity.getItemList(), matchEntity.getItemListMap(), true);
+                        updatePerkList(combiEntity.getPerkList(), matchEntity.getPerkListMap(), true);
+                        updateSpellList(combiEntity.getSpellList(), matchEntity.getSpellListMap(), true);
+                    } else {
+                        updateItemList(combiEntity.getItemList(), matchEntity.getItemListMap(), false);
+                        updatePerkList(combiEntity.getPerkList(), matchEntity.getPerkListMap(), false);
+                        updateSpellList(combiEntity.getSpellList(), matchEntity.getSpellListMap(), false);
+                    }
+                    saveCombiEntity(number, combiEntity);
                 }
-            }
-            else {
-                combiEntity.setAllCount(combiEntity.getAllCount()+1);
-                if(matchEntity.getWin()) {
-                    combiEntity.setWinCount(combiEntity.getWinCount()+1);
-                    updateItemList(combiEntity.getItemList(),matchEntity.getItemListMap(),true);
-                    updatePerkList(combiEntity.getPerkList(),matchEntity.getPerkListMap(),true);
-                    updateSpellList(combiEntity.getSpellList(),matchEntity.getSpellListMap(),true);
-                }
-                else {
-                    updateItemList(combiEntity.getItemList(),matchEntity.getItemListMap(),false);
-                    updatePerkList(combiEntity.getPerkList(),matchEntity.getPerkListMap(),false);
-                    updateSpellList(combiEntity.getSpellList(),matchEntity.getSpellListMap(),false);
-                }
-                saveCombiEntity(number,combiEntity);
-            }
-        });
+            });
+            start +=1000L;
+        }
         log.info("makeCombiInfo-end : " + number);
+
     }
     public void saveCombiEntity(int number, ICombiEntity iCombiEntity){
         if(number ==1) {

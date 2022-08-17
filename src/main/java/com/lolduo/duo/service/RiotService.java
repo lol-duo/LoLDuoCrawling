@@ -83,20 +83,7 @@ public class RiotService implements ApplicationRunner{
         //setChampion();
         //setSpell();
         //setPerk();
-        //All();
-
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date d = null;
-        LocalDate localDate = null;
-        try {
-            d = dateFormat.parse("2022-08-16");
-            localDate = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-        log.info("test");
-        List<DoubleMatchEntity> list = doubleMatchRepository.findAllByDate(localDate);
-        log.info("list size : " + list.size());
+        All();
         //test();
         log.info("ready");
     }
@@ -145,7 +132,7 @@ public class RiotService implements ApplicationRunner{
         Date d = null;
         LocalDate localDate = null;
         try {
-            d = dateFormat.parse("2022-08-17");
+            d = dateFormat.parse("2022-08-16");
             localDate = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         } catch (ParseException e) {
             throw new RuntimeException(e);
@@ -199,22 +186,21 @@ public class RiotService implements ApplicationRunner{
         log.info("1차 가공 end\n 2차 가공 start");
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "SoloInfo 만들기 start");
 
-        log.info("CombiInfo : Solo make");
-        infoService.makeCombiInfo(1,localDate);
+        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "TrioInfo 만들기 start");
+        log.info("CombiInfo : Triple make");
+        infoService.makeCombiInfo(3,localDate);
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "DuoInfo 만들기 start");
         log.info("CombiInfo : Double make");
         infoService.makeCombiInfo(2,localDate);
 
-        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "TrioInfo 만들기 start");
-        log.info("CombiInfo : Triple make");
-        infoService.makeCombiInfo(3,localDate);
+        log.info("CombiInfo : Solo make");
+        infoService.makeCombiInfo(1,localDate);
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "QuintetInfo 만들기 start");
         log.info("CombiInfo : Penta make");
         infoService.makeCombiInfo(5,localDate);
         log.info("2차 가공 end");
-
     }
 
     private void makeFullItem(ItemDto item){
@@ -239,7 +225,7 @@ public class RiotService implements ApplicationRunner{
         itemFullRepository.save(new ItemFullEntity(6655L));
         itemFullRepository.save(new ItemFullEntity(6656L));
         itemFullRepository.save(new ItemFullEntity(4644L));
-        itemFullRepository.save(new ItemFullEntity(3145L));
+        itemFullRepository.save(new ItemFullEntity(3152L));
         itemFullRepository.save(new ItemFullEntity(4633L));
         itemFullRepository.save(new ItemFullEntity(4636L));
         itemFullRepository.save(new ItemFullEntity(6662L));
