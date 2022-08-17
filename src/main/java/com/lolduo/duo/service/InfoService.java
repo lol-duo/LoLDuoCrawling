@@ -167,7 +167,7 @@ public class InfoService {
             if(spell.getSpellMap().values().containsAll(spellList.values())){
                 if(win)
                     infoSpellList.get(i).setWin(spell.getWin()+1);
-                infoSpellList.get(i).setAllCount(spell.getAllCount());
+                infoSpellList.get(i).setAllCount(spell.getAllCount()+1);
                 isUpdated=true;
                 break;
             }
