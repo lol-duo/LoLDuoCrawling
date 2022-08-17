@@ -8,7 +8,6 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.TreeSet;
 @Getter
-@Setter
 public class Spell extends Sub {
     private Map<Long, TreeSet<Long>> spellMap;
 

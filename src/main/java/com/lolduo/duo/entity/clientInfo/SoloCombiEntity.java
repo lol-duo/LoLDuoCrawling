@@ -61,13 +61,23 @@ public class SoloCombiEntity implements ICombiEntity{
         this.winCount = winCount;
     }
 
-    public SoloCombiEntity(TreeSet<Long> championId, Map<Long, String> position, Long allCount, Long winCount, List<Perk> perkList, List<Spell> spellList, List<Item> itemList) {
-        this.championId = championId;
-        this.position = position;
-        this.allCount = allCount;
-        this.winCount = winCount;
+    @Override
+    public void setPerkList(List<Perk> perkList) {
         this.perkList = perkList;
-        this.spellList = spellList;
+    }
+    @Override
+    public void setItemList(List<Item> itemList) {
         this.itemList = itemList;
+    }
+    @Override
+    public void setSpellList(List<Spell> spellList) {
+        this.spellList =spellList;
+    }
+    public void setChampionIdList(TreeSet<Long> championId) {
+        this.championId = championId;
+    }
+
+    public void setPositionMap(Map<Long, String> position) {
+        this.position = position;
     }
 }

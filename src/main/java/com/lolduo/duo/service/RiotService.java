@@ -73,6 +73,9 @@ public class RiotService implements ApplicationRunner{
     public void setVersion(String version) {
         this.version = version;
     }
+    public void setKey(String key) {
+        this.key = key;
+    }
     @Override
     public void run(ApplicationArguments args) throws Exception{
         setVersion("12.14.1");
@@ -125,6 +128,15 @@ public class RiotService implements ApplicationRunner{
         Set<String> matchIdList = new HashSet<>();
         LocalDate yesterday = LocalDate.ofInstant(Instant.ofEpochSecond(startTime), ZoneId.of("Asia/Seoul"));
 
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date d = null;
+        LocalDate localDate = null;
+        try {
+            d = dateFormat.parse("2022-08-16");
+            localDate = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
         /*
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger list 가져오기 start");
         log.info("get challenger start");
@@ -148,7 +160,7 @@ public class RiotService implements ApplicationRunner{
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "matchId 만들기 start");
         log.info("getMatch Info start : matchListSize : " +matchIdList.size());
         getMatchInfo(matchIdList);
-        */
+
         
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "master list 가져오기 start");
         log.info("get master start");
@@ -161,7 +173,6 @@ public class RiotService implements ApplicationRunner{
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "matchId 만들기 start");
         log.info("getMatch Info start : matchListSize : " +matchIdList.size());
         getMatchInfo(matchIdList);
-        
 
 
 
@@ -171,25 +182,26 @@ public class RiotService implements ApplicationRunner{
         setMatchInfo(2);
         setMatchInfo(3);
         setMatchInfo(5);
-
+        */;
         log.info("1차 가공 end\n 2차 가공 start");
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "SoloInfo 만들기 start");
 
         log.info("CombiInfo : Solo make");
-        infoService.makeCombiInfo(1,yesterday);
+        infoService.makeCombiInfo(1,localDate);
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "DuoInfo 만들기 start");
         log.info("CombiInfo : Double make");
-        infoService.makeCombiInfo(2,yesterday);
+        infoService.makeCombiInfo(2,localDate);
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "TrioInfo 만들기 start");
         log.info("CombiInfo : Triple make");
-        infoService.makeCombiInfo(3,yesterday);
+        infoService.makeCombiInfo(3,localDate);
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "QuintetInfo 만들기 start");
         log.info("CombiInfo : Penta make");
-        infoService.makeCombiInfo(5,yesterday);
+        infoService.makeCombiInfo(5,localDate);
         log.info("2차 가공 end");
+
     }
 
     private void makeFullItem(ItemDto item){
