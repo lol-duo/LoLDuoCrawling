@@ -83,7 +83,7 @@ public class RiotService implements ApplicationRunner{
         //setChampion();
         //setSpell();
         //setPerk();
-        All();
+        //All();
         //test();
         log.info("ready");
     }
