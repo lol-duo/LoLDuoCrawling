@@ -126,6 +126,7 @@ public class RiotService implements ApplicationRunner{
         Long startTime = endTime - 86400;
         Set<String> matchIdList = new HashSet<>();
         LocalDate yesterday = LocalDate.ofInstant(Instant.ofEpochSecond(startTime), ZoneId.of("Asia/Seoul"));
+        log.info("All - yesterday : {}", yesterday);
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date d = null;
@@ -187,18 +188,18 @@ public class RiotService implements ApplicationRunner{
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "TrioInfo 만들기 start");
         log.info("CombiInfo : Triple make");
-        combiService.makeCombiInfo(3,localDate);
+        combiService.makeCombiInfo(3,yesterday);
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "DuoInfo 만들기 start");
         log.info("CombiInfo : Double make");
-        combiService.makeCombiInfo(2,localDate);
+        combiService.makeCombiInfo(2,yesterday);
 
         log.info("CombiInfo : Solo make");
-        combiService.makeCombiInfo(1,localDate);
+        combiService.makeCombiInfo(1,yesterday);
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "QuintetInfo 만들기 start");
         log.info("CombiInfo : Penta make");
-        combiService.makeCombiInfo(5,localDate);
+        combiService.makeCombiInfo(5,yesterday);
         log.info("2차 가공 end");
     }
 
