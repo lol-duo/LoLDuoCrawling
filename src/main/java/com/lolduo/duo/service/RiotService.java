@@ -78,11 +78,11 @@ public class RiotService implements ApplicationRunner{
     @Override
     public void run(ApplicationArguments args) throws Exception{
         setVersion("12.14.1");
-        //setItem();
-        //setChampion();
-        //setSpell();
-        //setPerk();
-        //All();
+        setItem();
+        setChampion();
+        setSpell();
+        setPerk();
+        All();
         //test();
         log.info("ready");
     }
@@ -137,7 +137,7 @@ public class RiotService implements ApplicationRunner{
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-        /*
+
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger list 가져오기 start");
         log.info("get challenger start");
         getPuuIdList("challenger");
@@ -160,7 +160,6 @@ public class RiotService implements ApplicationRunner{
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "matchId 만들기 start");
         log.info("getMatch Info start : matchListSize : " +matchIdList.size());
         getMatchInfo(matchIdList);
-
         
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "master list 가져오기 start");
         log.info("get master start");
@@ -171,10 +170,8 @@ public class RiotService implements ApplicationRunner{
         matchIdList = new HashSet<>();
         matchIdList.addAll(getMatchId(startTime,endTime,"master"));
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "matchId 만들기 start");
-        log.info("getMatch Info start : matchListSize : " +matchIdList.size());
+        log.info("getMatch Info start : matchListSize : " + matchIdList.size());
         getMatchInfo(matchIdList);
-
-
 
         log.info("matchDetail 저장완료 ");
         log.info("1차 가공 start");
@@ -182,9 +179,8 @@ public class RiotService implements ApplicationRunner{
         setMatchInfo(2);
         setMatchInfo(3);
         setMatchInfo(5);
-        */;
+
         log.info("1차 가공 end\n 2차 가공 start");
-        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "SoloInfo 만들기 start");
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "TrioInfo 만들기 start");
         log.info("CombiInfo : Triple make");
@@ -194,6 +190,7 @@ public class RiotService implements ApplicationRunner{
         log.info("CombiInfo : Double make");
         combiService.makeCombiInfo(2,yesterday);
 
+        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "SoloInfo 만들기 start");
         log.info("CombiInfo : Solo make");
         combiService.makeCombiInfo(1,yesterday);
 
