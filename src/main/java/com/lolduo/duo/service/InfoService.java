@@ -33,36 +33,30 @@ public class InfoService {
 
     private ICombiEntity makeNewCombiEntity(int number,IMatchEntity matchEntity,boolean isWin){
         ICombiEntity temp = getCombiEntity(number);
-        Perk perk = new Perk(matchEntity.getPerkListMap(), 1L, 1L);
-        Spell spell = new Spell(matchEntity.getSpellListMap(), 1L, 1L);
-        Item item = new Item(matchEntity.getItemListMap(), 1L, 1L);
+
+        Perk perk = new Perk(matchEntity.getPerkListMap(), matchEntity.getWin()? 1L : 0L, 1L);
+        Spell spell = new Spell(matchEntity.getSpellListMap(), matchEntity.getWin()? 1L : 0L, 1L);
+        Item item = new Item(matchEntity.getItemListMap(), matchEntity.getWin()? 1L : 0L, 1L);
         List<Perk> perkList = new LinkedList<>();
         List<Spell> spellList = new LinkedList<>();
         List<Item> itemList = new LinkedList<>();
+
+        perkList.add(perk);
+        spellList.add(spell);
+        itemList.add(item);
+
+        temp.setPerkList(perkList);
+        temp.setItemList(itemList);
+        temp.setSpellList(spellList);
         temp.setAllCount(1L);
         temp.setChampionIdList(matchEntity.getChampionList());
         temp.setPositionMap(matchEntity.getPositionMap());
-        if (matchEntity.getWin()) {
-            perkList.add(perk);
-            spellList.add(spell);
-            itemList.add(item);
-            temp.setPerkList(perkList);
-            temp.setItemList(itemList);
-            temp.setSpellList(spellList);
+
+        if (matchEntity.getWin())
             temp.setWinCount(1L);
-        }
-        else{
-            perk.setWin(0L);
-            spell.setWin(0L);
-            item.setWin(0L);
-            perkList.add(perk);
-            spellList.add(spell);
-            itemList.add(item);
-            temp.setPerkList(perkList);
-            temp.setItemList(itemList);
-            temp.setSpellList(spellList);
+        else
             temp.setWinCount(0L);
-        }
+
         return temp;
     }
     public void makeCombiInfo(int number,LocalDate yesterday) {
