@@ -7,7 +7,6 @@ import com.lolduo.duo.entity.clientInfo.sub.Spell;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -33,6 +32,9 @@ public class SoloCombiEntity implements ICombiEntity{
     @Column(name = "position", columnDefinition = "json")
     private Map<Long, String> position = new HashMap<>();
 
+    @Column(name = "perk_myth_item")
+    private String perkMythItem;
+
     @Column(name = "all_count")
     private Long allCount;
 
@@ -51,6 +53,17 @@ public class SoloCombiEntity implements ICombiEntity{
     @Column(name = "item_list", columnDefinition = "json")
     private List<Item> itemList;
 
+    public SoloCombiEntity(TreeSet<Long> championId, Map<Long, String> position, String perkMythItem, Long allCount, Long winCount, List<Perk> perkList, List<Spell> spellList, List<Item> itemList) {
+        this.championId = championId;
+        this.position = position;
+        this.perkMythItem = perkMythItem;
+        this.allCount = allCount;
+        this.winCount = winCount;
+        this.perkList = perkList;
+        this.spellList = spellList;
+        this.itemList = itemList;
+    }
+
     @Override
     public void setAllCount(Long allCount) {
         this.allCount = allCount;
@@ -59,25 +72,5 @@ public class SoloCombiEntity implements ICombiEntity{
     @Override
     public void setWinCount(Long winCount) {
         this.winCount = winCount;
-    }
-
-    @Override
-    public void setPerkList(List<Perk> perkList) {
-        this.perkList = perkList;
-    }
-    @Override
-    public void setItemList(List<Item> itemList) {
-        this.itemList = itemList;
-    }
-    @Override
-    public void setSpellList(List<Spell> spellList) {
-        this.spellList =spellList;
-    }
-    public void setChampionIdList(TreeSet<Long> championId) {
-        this.championId = championId;
-    }
-
-    public void setPositionMap(Map<Long, String> position) {
-        this.position = position;
     }
 }

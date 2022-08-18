@@ -15,10 +15,6 @@ public interface SoloCombiRepository extends JpaRepository<SoloCombiEntity,Long>
     @Query(value = "select * from solo_combi where json_contains(champion_id,?1) and json_contains(position,?2) order by win_count / all_count ASC limit 30",nativeQuery = true)
     List<SoloCombiEntity> findAllByChampionIdAndPositionAsc(String championId, String position, String positionList, String excludePositionList);
 
-    @Query(value = "select * from solo_combi where json_contains(champion_id,?1) and json_contains(position,?2)",nativeQuery = true)
-    Optional<SoloCombiEntity> findByChampionIdAndPosition(String championId, String position);
+    @Query(value = "select * from solo_combi where json_contains(champion_id,?1) and json_contains(position,?2) and perk_myth_item = ?3",nativeQuery = true)
+    Optional<SoloCombiEntity> findByChampionIdAndPositionAndPerkMythItem(String championId, String position, String perkMythItem);
 }
-
-
-
-
