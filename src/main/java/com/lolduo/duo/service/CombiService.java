@@ -73,7 +73,7 @@ public class CombiService {
             matchEntitiyList.forEach(matchEntity -> {
                 ICombiEntity combiEntity = null;
                 try {
-                    combiEntity = combiRepository.findByChampionIdAndPosition(objectMapper.writeValueAsString(matchEntity.getChampionList()), objectMapper.writeValueAsString(matchEntity.getPositionMap())).orElse(null);
+                    combiEntity = combiRepository.findByChampionIdAndPositionAndPerkMythItem(objectMapper.writeValueAsString(matchEntity.getChampionList()), objectMapper.writeValueAsString(matchEntity.getPositionMap())).orElse(null);
                 } catch (JsonProcessingException e) {
                     log.error("objectMapper writeValue error");
                 }

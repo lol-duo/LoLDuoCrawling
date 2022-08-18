@@ -8,5 +8,5 @@ import java.util.Optional;
 public interface ICombiRepository {
     List<? extends ICombiEntity> findAllByChampionIdAndPositionDesc(String championId, String position, String positionList, String excludePositionList);
     List<? extends ICombiEntity> findAllByChampionIdAndPositionAsc(String championId, String position, String positionList, String excludePositionList);
-    Optional<? extends ICombiEntity> findByChampionIdAndPosition(String championId, String position);
+    Optional<? extends ICombiEntity> findByChampionIdAndPositionAndPerkMythItem(String championId, String position, String perkMythItem);
 }
