@@ -48,7 +48,7 @@ public class CombiService {
         return getCombiEntity(championCount, matchEntity.getChampionList(), matchEntity.getPositionMap(), perkMythItem, 1L, matchEntity.getWin()? 1L : 0L, perkList, spellList, itemList);
     }
     public void makeCombiInfo(int championCount, LocalDate yesterday) {
-        log.info("makeCombiInfo-start : " + championCount);
+        log.info("makeCombiInfo - start : " + championCount);
         ICombiRepository combiRepository = getInfoRepository(championCount);
         IMatchRepository matchRepository = getMatchRepository(championCount);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -88,8 +88,7 @@ public class CombiService {
             });
             start +=1000L;
         }
-        log.info("makeCombiInfo-end : " + championCount);
-
+        log.info("makeCombiInfo - end : " + championCount);
     }
     public void saveCombiEntity(int number, ICombiEntity iCombiEntity){
         if(number ==1) {
@@ -280,12 +279,16 @@ public class CombiService {
                 perkMythItemBuilder.append("|");
             }
 
+            boolean hasMythItem = false;
             for (Long item : itemSequenceList.get(index)) {
                 if (mythItemList.contains(item)) {
                     perkMythItemBuilder.append(item);
+                    hasMythItem = true;
                     break;
                 }
             }
+            if (!hasMythItem)
+                perkMythItemBuilder.append(0);
 
             if (index != championCount - 1)
                 perkMythItemBuilder.append("|");
