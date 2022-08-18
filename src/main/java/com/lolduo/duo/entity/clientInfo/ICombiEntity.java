@@ -12,6 +12,7 @@ public interface ICombiEntity {
     Long getId();
     TreeSet<Long> getChampionId();
     Map<Long, String> getPosition();
+    String getPerkMythItem();
     Long getAllCount();
     Long getWinCount();
     List<Perk> getPerkList();
@@ -20,9 +21,4 @@ public interface ICombiEntity {
 
     void setAllCount(Long allCount);
     void setWinCount(Long winCount);
-    void setPerkList(List<Perk> perkList);
-    void setItemList(List<Item> itemList);
-    void setSpellList(List<Spell> spellList);
-    void setChampionIdList(TreeSet<Long> championId);
-    void setPositionMap(Map<Long, String> position);
 }
