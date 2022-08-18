@@ -21,9 +21,4 @@ public interface ICombiEntity {
 
     void setAllCount(Long allCount);
     void setWinCount(Long winCount);
-    void setPerkList(List<Perk> perkList);
-    void setItemList(List<Item> itemList);
-    void setSpellList(List<Spell> spellList);
-    void setChampionIdList(TreeSet<Long> championId);
-    void setPositionMap(Map<Long, String> position);
 }
