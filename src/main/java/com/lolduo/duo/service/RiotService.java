@@ -137,7 +137,7 @@ public class RiotService implements ApplicationRunner{
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-
+/*
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger list 가져오기 start");
         log.info("get challenger start");
         getPuuIdList("challenger");
@@ -179,7 +179,7 @@ public class RiotService implements ApplicationRunner{
         setMatchInfo(2);
         setMatchInfo(3);
         setMatchInfo(5);
-
+*/
         log.info("1차 가공 end\n 2차 가공 start");
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "TrioInfo 만들기 start");
