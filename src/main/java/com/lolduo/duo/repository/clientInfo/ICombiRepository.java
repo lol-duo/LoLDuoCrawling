@@ -1,7 +1,6 @@
 package com.lolduo.duo.repository.clientInfo;
 
 import com.lolduo.duo.entity.clientInfo.ICombiEntity;
-import com.lolduo.duo.entity.gameInfo.IMatchEntity;
 
 import java.util.List;
 import java.util.Optional;

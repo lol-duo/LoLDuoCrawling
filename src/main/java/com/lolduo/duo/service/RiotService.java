@@ -43,7 +43,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
@@ -68,7 +67,7 @@ public class RiotService implements ApplicationRunner{
     private final LoLUserRepository lolUserRepository;
     private final MatchDetailRepository matchDetailRepository;
     private final SlackNotifyService slackNotifyService;
-    private final InfoService infoService;
+    private final CombiService combiService;
 
     public void setVersion(String version) {
         this.version = version;
@@ -115,10 +114,10 @@ public class RiotService implements ApplicationRunner{
         Long startTime = endTime - 86400;
 
         LocalDate yesterday = LocalDate.ofInstant(Instant.ofEpochSecond(startTime), ZoneId.of("Asia/Seoul"));
-        infoService.makeCombiInfo(1,yesterday);
-        infoService.makeCombiInfo(2,yesterday);
-        infoService.makeCombiInfo(3,yesterday);
-        infoService.makeCombiInfo(5,yesterday);
+        combiService.makeCombiInfo(1,yesterday);
+        combiService.makeCombiInfo(2,yesterday);
+        combiService.makeCombiInfo(3,yesterday);
+        combiService.makeCombiInfo(5,yesterday);
         log.info("2차 가공 end");
     }
     //@Scheduled(cron = "1 0 0 * * *", zone = "Asia/Seoul")
@@ -188,18 +187,18 @@ public class RiotService implements ApplicationRunner{
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "TrioInfo 만들기 start");
         log.info("CombiInfo : Triple make");
-        infoService.makeCombiInfo(3,localDate);
+        combiService.makeCombiInfo(3,localDate);
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "DuoInfo 만들기 start");
         log.info("CombiInfo : Double make");
-        infoService.makeCombiInfo(2,localDate);
+        combiService.makeCombiInfo(2,localDate);
 
         log.info("CombiInfo : Solo make");
-        infoService.makeCombiInfo(1,localDate);
+        combiService.makeCombiInfo(1,localDate);
 
         //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "QuintetInfo 만들기 start");
         log.info("CombiInfo : Penta make");
-        infoService.makeCombiInfo(5,localDate);
+        combiService.makeCombiInfo(5,localDate);
         log.info("2차 가공 end");
     }
 
@@ -296,7 +295,7 @@ public class RiotService implements ApplicationRunner{
                     return;
             }
             String tier = getTier(response_match.getBody());
-            matchDetailRepository.save(new MatchEntity(LocalDate.now(ZoneId.of("Asia/Seoul")),response_match.getBody(),  playerItemList, puuIdMap,tier));
+            matchDetailRepository.save(new MatchDetailEntity(LocalDate.now(ZoneId.of("Asia/Seoul")),response_match.getBody(),  playerItemList, puuIdMap,tier));
         });
     }
     private String getTierBySummonerId(String summonerId){
@@ -370,9 +369,9 @@ public class RiotService implements ApplicationRunner{
         return tierNameList.get(Math.round(tierNum/ 10));
     }
     private void setMatchInfo(int number) {
-        List<MatchEntity> matchEntity = matchDetailRepository.findAllByDate(LocalDate.now(ZoneId.of("Asia/Seoul")));
-        log.info("setMatchInfo function number = " + number +" matchEntity size : " + matchEntity.size());
-        matchEntity.forEach(match -> {
+        List<MatchDetailEntity> matchDetailEntity = matchDetailRepository.findAllByDate(LocalDate.now(ZoneId.of("Asia/Seoul")));
+        log.info("setMatchInfo function number = " + number +" matchEntity size : " + matchDetailEntity.size());
+        matchDetailEntity.forEach(match -> {
             MatchDto matchDto = match.getMatchInfo();
             List<List<Long>> playerItemList = match.getPlayerItemList();
             Map<String, Long> puuIdMap = match.getPuuIdMap();

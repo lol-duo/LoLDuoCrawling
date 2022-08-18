@@ -20,7 +20,7 @@ import java.util.Map;
 @Table(name = "match_detail")
 @Getter
 @TypeDef(name = "json", typeClass = JsonType.class,defaultForType = JsonNode.class)
-public class MatchEntity {
+public class MatchDetailEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -44,7 +44,7 @@ public class MatchEntity {
     @Column(name = "tier")
     private String tier;
 
-    public MatchEntity(LocalDate date, MatchDto matchInfo, List<List<Long>> playerItemList, Map<String, Long> puuIdMap, String tier) {
+    public MatchDetailEntity(LocalDate date, MatchDto matchInfo, List<List<Long>> playerItemList, Map<String, Long> puuIdMap, String tier) {
         this.date = date;
         this.matchInfo = matchInfo;
         this.playerItemList = playerItemList;

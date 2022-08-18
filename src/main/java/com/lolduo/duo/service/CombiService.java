@@ -11,7 +11,6 @@ import com.lolduo.duo.repository.clientInfo.*;
 import com.lolduo.duo.repository.gameInfo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 
@@ -21,7 +20,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class InfoService {
+public class CombiService {
     private final SoloMatchRepository soloMatchRepository;
     private final DoubleMatchRepository doubleMatchRepository;
     private final TripleMatchRepository tripleMatchRepository;

@@ -1,6 +1,5 @@
 package com.lolduo.duo.repository.gameInfo;
 
-import com.lolduo.duo.entity.MatchEntity;
 import com.lolduo.duo.entity.gameInfo.SoloMatchEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
