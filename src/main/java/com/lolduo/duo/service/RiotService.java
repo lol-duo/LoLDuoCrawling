@@ -76,24 +76,15 @@ public class RiotService implements ApplicationRunner{
         this.key = key;
     }
 
-
-    public void tempItemAdd(){
-        itemRepository.save(new ItemEntity(5001L,"체력","perk-images/StatMods/StatModsHealthScalingIcon.png"));
-        itemRepository.save(new ItemEntity(5002L,"방어력","perk-images/StatMods/StatModsArmorIcon.png"));
-        itemRepository.save(new ItemEntity(5003L,"마법 저항력","perk-images/StatMods/StatModsMagicResIcon.MagicResist_Fix.png"));
-        itemRepository.save(new ItemEntity(5005L,"공격 속도","perk-images/StatMods/StatModsAttackSpeedIcon.png.png"));
-        itemRepository.save(new ItemEntity(5007L,"스킬 가속","perk-images/StatMods/StatModsCDRScalingIcon.png"));
-        itemRepository.save(new ItemEntity(5008L,"적응형 능력치","perk-images/StatMods/StatModsAdaptiveForceIcon.png"));
-    }
     @Override
     public void run(ApplicationArguments args) throws Exception{
         setVersion("12.14.1");
         //setItem();
         //setChampion();
         //setSpell();
-        //setPerk();
+        setPerk();
+        log.info("setPerk 완료! ");
         All();
-        tempItemAdd(); //추후에 함수와 함께 지울 것.
         //test();
         log.info("ready");
     }
@@ -618,12 +609,12 @@ public class RiotService implements ApplicationRunner{
             }
             perkRepository.save(new PerkEntity(perkDto.getId(), perkDto.getName(), perkDto.getIcon()));
         });
-        itemRepository.save(new ItemEntity(5001L,"체력","perk-images/StatMods/StatModsHealthScalingIcon.png"));
-        itemRepository.save(new ItemEntity(5002L,"방어력","perk-images/StatMods/StatModsArmorIcon.png"));
-        itemRepository.save(new ItemEntity(5003L,"마법 저항력","perk-images/StatMods/StatModsMagicResIcon.MagicResist_Fix.png"));
-        itemRepository.save(new ItemEntity(5005L,"공격 속도","perk-images/StatMods/StatModsAttackSpeedIcon.png.png"));
-        itemRepository.save(new ItemEntity(5007L,"스킬 가속","perk-images/StatMods/StatModsCDRScalingIcon.png"));
-        itemRepository.save(new ItemEntity(5008L,"적응형 능력치","perk-images/StatMods/StatModsAdaptiveForceIcon.png"));
+        perkRepository.save(new PerkEntity(5001L,"체력","perk-images/StatMods/StatModsHealthScalingIcon.png"));
+        perkRepository.save(new PerkEntity(5002L,"방어력","perk-images/StatMods/StatModsArmorIcon.png"));
+        perkRepository.save(new PerkEntity(5003L,"마법 저항력","perk-images/StatMods/StatModsMagicResIcon.MagicResist_Fix.png"));
+        perkRepository.save(new PerkEntity(5005L,"공격 속도","perk-images/StatMods/StatModsAttackSpeedIcon.png.png"));
+        perkRepository.save(new PerkEntity(5007L,"스킬 가속","perk-images/StatMods/StatModsCDRScalingIcon.png"));
+        perkRepository.save(new PerkEntity(5008L,"적응형 능력치","perk-images/StatMods/StatModsAdaptiveForceIcon.png"));
 
     }
 }
