@@ -75,14 +75,25 @@ public class RiotService implements ApplicationRunner{
     public void setKey(String key) {
         this.key = key;
     }
+
+
+    public void tempItemAdd(){
+        itemRepository.save(new ItemEntity(5001L,"체력","perk-images/StatMods/StatModsHealthScalingIcon.png"));
+        itemRepository.save(new ItemEntity(5002L,"방어력","perk-images/StatMods/StatModsArmorIcon.png"));
+        itemRepository.save(new ItemEntity(5003L,"마법 저항력","perk-images/StatMods/StatModsMagicResIcon.MagicResist_Fix.png"));
+        itemRepository.save(new ItemEntity(5005L,"공격 속도","perk-images/StatMods/StatModsAttackSpeedIcon.png.png"));
+        itemRepository.save(new ItemEntity(5007L,"스킬 가속","perk-images/StatMods/StatModsCDRScalingIcon.png"));
+        itemRepository.save(new ItemEntity(5008L,"적응형 능력치","perk-images/StatMods/StatModsAdaptiveForceIcon.png"));
+    }
     @Override
     public void run(ApplicationArguments args) throws Exception{
         setVersion("12.14.1");
-        setItem();
-        setChampion();
-        setSpell();
-        setPerk();
+        //setItem();
+        //setChampion();
+        //setSpell();
+        //setPerk();
         All();
+        tempItemAdd(); //추후에 함수와 함께 지울 것.
         //test();
         log.info("ready");
     }
@@ -128,48 +139,49 @@ public class RiotService implements ApplicationRunner{
         LocalDate yesterday = LocalDate.ofInstant(Instant.ofEpochSecond(startTime), ZoneId.of("Asia/Seoul"));
         log.info("All - yesterday : {}", yesterday);
 
+        /*
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date d = null;
         LocalDate localDate = null;
         try {
-            d = dateFormat.parse("2022-08-16");
+            d = dateFormat.parse("2022-08-15");
             localDate = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-/*
-        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger list 가져오기 start");
+         */
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger list 가져오기 start");
         log.info("get challenger start");
         getPuuIdList("challenger");
 
-        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger matchId 만들기 start");
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger matchId 만들기 start");
         log.info("make challenger matchIList start");
         matchIdList.addAll(getMatchId(startTime,endTime,"challenger"));
-        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "matchId 만들기 start");
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "matchId 만들기 start");
         log.info("getMatch Info start : matchListSize : " +matchIdList.size());
         getMatchInfo(matchIdList);
 
-        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "grandmaster list 가져오기 start");
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "grandmaster list 가져오기 start");
         log.info("get grandmaster start");
         getPuuIdList("grandmaster");
 
-        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "grandmaster matchId 만들기 start");
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "grandmaster matchId 만들기 start");
         log.info("make grandmaster matchIList start");
         matchIdList = new HashSet<>();
         matchIdList.addAll(getMatchId(startTime,endTime,"grandmaster"));
-        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "matchId 만들기 start");
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "matchId 만들기 start");
         log.info("getMatch Info start : matchListSize : " +matchIdList.size());
         getMatchInfo(matchIdList);
         
-        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "master list 가져오기 start");
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "master list 가져오기 start");
         log.info("get master start");
         getPuuIdList("master");
         
-        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "master matchId 만들기 start");
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "master matchId 만들기 start");
         log.info("make master matchIList start");
         matchIdList = new HashSet<>();
         matchIdList.addAll(getMatchId(startTime,endTime,"master"));
-        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "matchId 만들기 start");
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "matchId 만들기 start");
         log.info("getMatch Info start : matchListSize : " + matchIdList.size());
         getMatchInfo(matchIdList);
 
@@ -179,22 +191,21 @@ public class RiotService implements ApplicationRunner{
         setMatchInfo(2);
         setMatchInfo(3);
         setMatchInfo(5);
-*/
         log.info("1차 가공 end\n 2차 가공 start");
 
-        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "TrioInfo 만들기 start");
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "TrioInfo 만들기 start");
         log.info("CombiInfo : Triple make");
         combiService.makeCombiInfo(3,yesterday);
 
-        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "DuoInfo 만들기 start");
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "DuoInfo 만들기 start");
         log.info("CombiInfo : Double make");
         combiService.makeCombiInfo(2,yesterday);
 
-        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "SoloInfo 만들기 start");
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "SoloInfo 만들기 start");
         log.info("CombiInfo : Solo make");
         combiService.makeCombiInfo(1,yesterday);
 
-        //slackNotifyService.sendMessage(slackNotifyService.nowTime() + "QuintetInfo 만들기 start");
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "QuintetInfo 만들기 start");
         log.info("CombiInfo : Penta make");
         combiService.makeCombiInfo(5,yesterday);
         log.info("2차 가공 end");
@@ -536,6 +547,7 @@ public class RiotService implements ApplicationRunner{
         return matchList;
     }
 
+
     //  패치 별 아이템, 챔피언 ,스펠, 룬 정보 정보들 DB에 세팅해주는 부분들
     private void setItem(){
         String url = "https://ddragon.leagueoflegends.com/cdn/"+version+"/data/ko_KR/item.json";
@@ -606,6 +618,12 @@ public class RiotService implements ApplicationRunner{
             }
             perkRepository.save(new PerkEntity(perkDto.getId(), perkDto.getName(), perkDto.getIcon()));
         });
+        itemRepository.save(new ItemEntity(5001L,"체력","perk-images/StatMods/StatModsHealthScalingIcon.png"));
+        itemRepository.save(new ItemEntity(5002L,"방어력","perk-images/StatMods/StatModsArmorIcon.png"));
+        itemRepository.save(new ItemEntity(5003L,"마법 저항력","perk-images/StatMods/StatModsMagicResIcon.MagicResist_Fix.png"));
+        itemRepository.save(new ItemEntity(5005L,"공격 속도","perk-images/StatMods/StatModsAttackSpeedIcon.png.png"));
+        itemRepository.save(new ItemEntity(5007L,"스킬 가속","perk-images/StatMods/StatModsCDRScalingIcon.png"));
+        itemRepository.save(new ItemEntity(5008L,"적응형 능력치","perk-images/StatMods/StatModsAdaptiveForceIcon.png"));
 
     }
 }

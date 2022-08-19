@@ -27,20 +27,40 @@ public class SlackNotifyService {
 
     @EventListener(ContextRefreshedEvent.class)
     public void onContextRefreshedEvent(ContextRefreshedEvent event) {
+        String text;
         if (springProfile.equals("server")) {
-            sendMessage(ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
+            text = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
                     .format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss"))
-                    + " - 서버를 기동합니다.\n프론트 페이지: https://lolduo.net/\nSwagger: http://api.lolduo.net/swagger-ui.html#/\nDatadog: https://www.datadoghq.com/");
+                    + " - 크롤링 서버를 기동합니다.\n프론트 페이지: https://lolduo.net/\nSwagger: http://api.lolduo.net/swagger-ui.html#\nDatadog: https://www.datadoghq.com/";
         }
+        else if (springProfile.equals("devserver")) {
+            text = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
+                    .format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss"))
+                    + " - 크롤링 DEV 서버를 기동합니다.\n프론트 페이지: https://lolduo.net:1000/\nSwagger: http://api.lolduo.net:1000/swagger-ui.html#\nDatadog: https://www.datadoghq.com/";
+        }
+        else
+            return;
+
+        sendMessage(text);
     }
 
     @EventListener(ContextClosedEvent.class)
     public void onContextClosedEvent(ContextClosedEvent event) {
+        String text;
         if (springProfile.equals("server")) {
-            sendMessage(ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
+            text = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
                     .format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss"))
-                    + " - 서버가 종료되었습니다.\nDatadog: https://www.datadoghq.com/");
+                    + " -  크롤링 서버가 종료되었습니다.\nDatadog: https://www.datadoghq.com/";
         }
+        else if (springProfile.equals("devserver")) {
+            text = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
+                    .format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss"))
+                    + " - 크롤링 DEV 서버가 종료되었습니다.\nDatadog: https://www.datadoghq.com/";
+        }
+        else
+            return;
+
+        sendMessage(text);
     }
 
     public void sendMessage(String text) {
