@@ -130,17 +130,20 @@ public class RiotService implements ApplicationRunner{
         LocalDate yesterday = LocalDate.ofInstant(Instant.ofEpochSecond(startTime), ZoneId.of("Asia/Seoul"));
         log.info("All - yesterday : {}", yesterday);
 
-        /*
+
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date d = null;
         LocalDate localDate = null;
         try {
-            d = dateFormat.parse("2022-08-15");
+            d = dateFormat.parse("2022-08-20");
             localDate = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-         */
+
+
+
+        /*
         slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger list 가져오기 start");
         log.info("get challenger start");
         getPuuIdList("challenger");
@@ -175,30 +178,30 @@ public class RiotService implements ApplicationRunner{
         slackNotifyService.sendMessage(slackNotifyService.nowTime() + "matchId 만들기 start");
         log.info("getMatch Info start : matchListSize : " + matchIdList.size());
         getMatchInfo(matchIdList);
-
+        */
         log.info("matchDetail 저장완료 ");
         log.info("1차 가공 start");
-        setMatchInfo(1);
-        setMatchInfo(2);
-        setMatchInfo(3);
-        setMatchInfo(5);
+        setMatchInfo(1,localDate);
+        setMatchInfo(2,localDate);
+        setMatchInfo(3,localDate);
+        setMatchInfo(5,localDate);
         log.info("1차 가공 end\n 2차 가공 start");
 
         slackNotifyService.sendMessage(slackNotifyService.nowTime() + "TrioInfo 만들기 start");
         log.info("CombiInfo : Triple make");
-        combiService.makeCombiInfo(3,yesterday);
+        combiService.makeCombiInfo(3,localDate);
 
         slackNotifyService.sendMessage(slackNotifyService.nowTime() + "DuoInfo 만들기 start");
         log.info("CombiInfo : Double make");
-        combiService.makeCombiInfo(2,yesterday);
+        combiService.makeCombiInfo(2,localDate);
 
         slackNotifyService.sendMessage(slackNotifyService.nowTime() + "SoloInfo 만들기 start");
         log.info("CombiInfo : Solo make");
-        combiService.makeCombiInfo(1,yesterday);
+        combiService.makeCombiInfo(1,localDate);
 
         slackNotifyService.sendMessage(slackNotifyService.nowTime() + "QuintetInfo 만들기 start");
         log.info("CombiInfo : Penta make");
-        combiService.makeCombiInfo(5,yesterday);
+        combiService.makeCombiInfo(5,localDate);
         log.info("2차 가공 end");
     }
 
@@ -368,44 +371,53 @@ public class RiotService implements ApplicationRunner{
         }
         return tierNameList.get(Math.round(tierNum/ 10));
     }
-    private void setMatchInfo(int number) {
-        List<MatchDetailEntity> matchDetailEntity = matchDetailRepository.findAllByDate(LocalDate.now(ZoneId.of("Asia/Seoul")));
-        log.info("setMatchInfo function number = " + number +" matchEntity size : " + matchDetailEntity.size());
-        matchDetailEntity.forEach(match -> {
-            MatchDto matchDto = match.getMatchInfo();
-            List<List<Long>> playerItemList = match.getPlayerItemList();
-            Map<String, Long> puuIdMap = match.getPuuIdMap();
-            String tier = match.getTier();
+    private void setMatchInfo(int number,LocalDate date) {
+        //List<MatchDetailEntity> matchDetailEntity  = matchDetailRepository.findAllByDateLimit(LocalDate.now(ZoneId.of("Asia/Seoul")),1000L);
+        Long matchSize = matchDetailRepository.findSizeByDate(date).orElse(0L);
+        Long start = 0L;
+        log.info("setMatchInfo : number = " +number +" matchSize : " + matchSize);
 
-            Map<String, Boolean> visitedWin = new HashMap<>();
-            Map<String, Boolean> visitedLose = new HashMap<>();
-            if(number==5){
-                List<Participant> winParticipantList = new ArrayList<>();
-                List<Participant> loseParticipantList = new ArrayList<>();
-                matchDto.getInfo().getParticipants().forEach(participant -> {
-                    if (participant.getWin() == true) {
-                        winParticipantList.add(participant);
-                    } else {
-                        loseParticipantList.add(participant);
-                    }
-                });
-                //5인 정보 save
-                saveMatch(winParticipantList, playerItemList, puuIdMap, true, 5, tier, matchDto.getInfo().getGameCreation());
-                saveMatch(loseParticipantList, playerItemList, puuIdMap, false, 5, tier,matchDto.getInfo().getGameCreation());
-            }
-            else {
-                matchDto.getInfo().getParticipants().forEach(participant -> {
-                    if (participant.getWin() == true) {
-                        visitedWin.put(participant.getPuuid(), false);
-                    } else {
-                        visitedLose.put(participant.getPuuid(), false);
-                    }
-                });
-                //1,2,3일때 정보 save
-                combination(matchDto, playerItemList, puuIdMap, new ArrayList<>(), visitedWin, true, number, 0, tier);
-                combination(matchDto, playerItemList, puuIdMap, new ArrayList<>(), visitedLose, false, number, 0, tier);
-            }
-        });
+        while(start < matchSize){
+            List<MatchDetailEntity> matchDetailEntity  = matchDetailRepository.findAllByDateLimit(date,start);
+            log.info("setMatchInfo : number" + number + " matchDetailRepository.findAllByDateLimit() , size : " + start+ " / " + matchSize);
+            matchDetailEntity.forEach(match -> {
+                MatchDto matchDto = match.getMatchInfo();
+                List<List<Long>> playerItemList = match.getPlayerItemList();
+                Map<String, Long> puuIdMap = match.getPuuIdMap();
+                String tier = match.getTier();
+
+                Map<String, Boolean> visitedWin = new HashMap<>();
+                Map<String, Boolean> visitedLose = new HashMap<>();
+                if(number==5){
+                    List<Participant> winParticipantList = new ArrayList<>();
+                    List<Participant> loseParticipantList = new ArrayList<>();
+                    matchDto.getInfo().getParticipants().forEach(participant -> {
+                        if (participant.getWin() == true) {
+                            winParticipantList.add(participant);
+                        } else {
+                            loseParticipantList.add(participant);
+                        }
+                    });
+                    //5인 정보 save
+                    saveMatch(winParticipantList, playerItemList, puuIdMap, true, 5, tier, matchDto.getInfo().getGameCreation());
+                    saveMatch(loseParticipantList, playerItemList, puuIdMap, false, 5, tier,matchDto.getInfo().getGameCreation());
+                }
+                else {
+                    matchDto.getInfo().getParticipants().forEach(participant -> {
+                        if (participant.getWin() == true) {
+                            visitedWin.put(participant.getPuuid(), false);
+                        } else {
+                            visitedLose.put(participant.getPuuid(), false);
+                        }
+                    });
+                    //1,2,3일때 정보 save
+                    combination(matchDto, playerItemList, puuIdMap, new ArrayList<>(), visitedWin, true, number, 0, tier);
+                    combination(matchDto, playerItemList, puuIdMap, new ArrayList<>(), visitedLose, false, number, 0, tier);
+                }
+            });
+            start+=1000L;
+        }
+
     }
     private void combination(MatchDto matchDto, List<List<Long>> playerItemList, Map<String, Long> puuIdMap,List<Participant> participantList,Map<String,Boolean> visited,Boolean win,int number,int start,String tier){
         if(participantList.size()==number){
