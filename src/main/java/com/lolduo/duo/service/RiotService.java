@@ -82,8 +82,8 @@ public class RiotService implements ApplicationRunner{
         //setItem();
         //setChampion();
         //setSpell();
-        setPerk();
-        log.info("setPerk 완료! ");
+        //setPerk();
+        //log.info("setPerk 완료! ");
         All();
         //test();
         log.info("ready");
@@ -135,7 +135,7 @@ public class RiotService implements ApplicationRunner{
         Date d = null;
         LocalDate localDate = null;
         try {
-            d = dateFormat.parse("2022-08-20");
+            d = dateFormat.parse("2022-08-21");
             localDate = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         } catch (ParseException e) {
             throw new RuntimeException(e);
@@ -143,7 +143,7 @@ public class RiotService implements ApplicationRunner{
 
 
 
-        /*
+
         slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger list 가져오기 start");
         log.info("get challenger start");
         getPuuIdList("challenger");
@@ -178,7 +178,8 @@ public class RiotService implements ApplicationRunner{
         slackNotifyService.sendMessage(slackNotifyService.nowTime() + "matchId 만들기 start");
         log.info("getMatch Info start : matchListSize : " + matchIdList.size());
         getMatchInfo(matchIdList);
-        */
+        log.info("match detail 쌓기 완료, 크롤링 서버 내리고 기존 combi DB 정리 후 1차가공 할 것.");
+        /*
         log.info("matchDetail 저장완료 ");
         log.info("1차 가공 start");
         setMatchInfo(1,localDate);
@@ -203,6 +204,7 @@ public class RiotService implements ApplicationRunner{
         log.info("CombiInfo : Penta make");
         combiService.makeCombiInfo(5,localDate);
         log.info("2차 가공 end");
+         */
     }
 
     private void makeFullItem(ItemDto item){
@@ -272,7 +274,9 @@ public class RiotService implements ApplicationRunner{
             time_match.getBody().getInfo().getFrames().forEach(frameDto -> {
                 frameDto.getEvents().forEach(eventDto -> {
                     if(eventDto.getType().equals("ITEM_PURCHASED") && itemFullRepository.findById(eventDto.getItemId()).orElse(null) != null){
-                        playerItemList.get(eventDto.getParticipantId().intValue()).add(eventDto.getItemId());
+                        if(playerItemList.get(eventDto.getParticipantId().intValue()).contains(eventDto.getItemId())!=true){
+                            playerItemList.get(eventDto.getParticipantId().intValue()).add(eventDto.getItemId());
+                        }
                     }
                 });
             });

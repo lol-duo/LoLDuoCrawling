@@ -68,7 +68,7 @@ public class CombiService {
                     log.error("objectMapper writeValue error");
                 }
                 if (combiEntity == null || combiEntity.getAllCount() == null) {
-                    log.info("combiEntity is null ");
+                    log.info("makeCombiInfo : combiEntity is null 입니다. 새로 만듭니다.");
                     combiEntity = makeNewCombiEntity(matchEntity, perkMythItem, matchEntity.getWin());
                     saveCombiEntity(championCount, combiEntity);
                 } else {
