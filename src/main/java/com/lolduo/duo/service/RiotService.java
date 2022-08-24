@@ -125,10 +125,17 @@ public class RiotService implements ApplicationRunner{
     //@Scheduled(cron = "1 0 0 * * *", zone = "Asia/Seoul")
     private void All(){
         Long endTime = System.currentTimeMillis() / 1000;
+        //임시
+        endTime = 1661256120L;
+
         Long startTime = endTime - 86400;
         Set<String> matchIdList = new HashSet<>();
+
+
         LocalDate yesterday = LocalDate.ofInstant(Instant.ofEpochSecond(startTime), ZoneId.of("Asia/Seoul"));
+        log.info("All - endTime : {}", endTime);
         log.info("All - yesterday : {}", yesterday);
+
 
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -260,6 +267,7 @@ public class RiotService implements ApplicationRunner{
                 time_match = restTemplate.exchange(url + matchId + "/timeline", HttpMethod.GET, requestEntity, MatchTimeLineDto.class);
             }catch (Exception e){
                 log.info("matchId : " + matchId + " 에러");
+                log.info("matchId 에러 메시지 : {}",e.getMessage() );
                 return;
             }
             List<List<Long>> playerItemList = new ArrayList<List<Long>>();
