@@ -126,8 +126,7 @@ public class RiotService implements ApplicationRunner{
     private void All(){
         Long endTime = System.currentTimeMillis() / 1000;
         //임시
-        endTime = 1661256120L;
-
+        endTime = 1661169720L;
         Long startTime = endTime - 86400;
         Set<String> matchIdList = new HashSet<>();
 
