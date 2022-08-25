@@ -137,22 +137,14 @@ public class RiotService implements ApplicationRunner{
 
 
 
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date d = null;
-        LocalDate localDate = null;
-        try {
-            d = dateFormat.parse("2022-08-23");
-            localDate = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
+
 
         DateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd");
         Date d2 = null;
         LocalDate localDate2 = null;
         try {
-            d = dateFormat.parse("2022-08-24");
-            localDate = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            d2 = dateFormat2.parse("2022-08-23");
+            localDate2 = d2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
@@ -161,8 +153,8 @@ public class RiotService implements ApplicationRunner{
         Date d3 = null;
         LocalDate localDate3 = null;
         try {
-            d = dateFormat.parse("2022-08-25");
-            localDate = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            d3 = dateFormat3.parse("2022-08-24");
+            localDate3 = d3.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
@@ -207,17 +199,12 @@ public class RiotService implements ApplicationRunner{
         */
         log.info("1차 가공 start");
 
-        slackNotifyService.sendMessage(localDate + " 일자 데이터 Match 만들기 Start");
-        setMatchInfo(1,localDate);
-        setMatchInfo(2,localDate);
-        setMatchInfo(3,localDate);
-        setMatchInfo(5,localDate);
-        slackNotifyService.sendMessage(localDate2 + " 일자 데이터 Match 만들기 Start");
+        slackNotifyService.sendMessage(localDate2.toString() + " 일자 데이터 Match 만들기 Start");
         setMatchInfo(1,localDate2);
         setMatchInfo(2,localDate2);
         setMatchInfo(3,localDate2);
         setMatchInfo(5,localDate2);
-        slackNotifyService.sendMessage(localDate3 + " 일자 데이터 Match 만들기 Start");
+        slackNotifyService.sendMessage(localDate3.toString() + " 일자 데이터 Match 만들기 Start");
         setMatchInfo(1,localDate3);
         setMatchInfo(2,localDate3);
         setMatchInfo(3,localDate3);
