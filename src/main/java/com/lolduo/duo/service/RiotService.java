@@ -137,13 +137,21 @@ public class RiotService implements ApplicationRunner{
 
 
 
-
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date d = null;
+        LocalDate localDate = null;
+        try {
+            d = dateFormat.parse("2022-08-23");
+            localDate = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
 
         DateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd");
         Date d2 = null;
         LocalDate localDate2 = null;
         try {
-            d2 = dateFormat2.parse("2022-08-23");
+            d2 = dateFormat2.parse("2022-08-24");
             localDate2 = d2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         } catch (ParseException e) {
             throw new RuntimeException(e);
@@ -153,11 +161,12 @@ public class RiotService implements ApplicationRunner{
         Date d3 = null;
         LocalDate localDate3 = null;
         try {
-            d3 = dateFormat3.parse("2022-08-24");
+            d3 = dateFormat3.parse("2022-08-25");
             localDate3 = d3.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
+
         /*
         slackNotifyService.sendMessage(slackNotifyService.nowTime() + "challenger list 가져오기 start");
         log.info("get challenger start");
@@ -197,6 +206,7 @@ public class RiotService implements ApplicationRunner{
 
         log.info("matchDetail 저장완료 ");
         */
+        /*
         log.info("1차 가공 start");
 
         slackNotifyService.sendMessage(localDate2.toString() + " 일자 데이터 Match 만들기 Start");
@@ -209,26 +219,63 @@ public class RiotService implements ApplicationRunner{
         setMatchInfo(2,localDate3);
         setMatchInfo(3,localDate3);
         setMatchInfo(5,localDate3);
+        */
+
         log.info("1차 가공 end\n 2차 가공 start");
 
-        /*
+
         slackNotifyService.sendMessage(slackNotifyService.nowTime() + "Triple Combi 만들기 start");
-        log.info("CombiInfo : Triple make");
+        log.info("CombiInfo : Triple make , localDate : {}", localDate);
         combiService.makeCombiInfo(3,localDate);
 
         slackNotifyService.sendMessage(slackNotifyService.nowTime() + "Double Combi 만들기 start");
-        log.info("CombiInfo : Double make");
+        log.info("CombiInfo : Double make, localDate : {}",localDate);
         combiService.makeCombiInfo(2,localDate);
 
         slackNotifyService.sendMessage(slackNotifyService.nowTime() + "Solo Combi 만들기 start");
-        log.info("CombiInfo : Solo make");
+        log.info("CombiInfo : Solo make, localDate : {}",localDate);
         combiService.makeCombiInfo(1,localDate);
 
         slackNotifyService.sendMessage(slackNotifyService.nowTime() + "Penta Combi 만들기 start");
-        log.info("CombiInfo : Penta make");
+        log.info("CombiInfo : Penta make, localDate : {}",localDate);
         combiService.makeCombiInfo(5,localDate);
         log.info("2차 가공 end");
-        */
+
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "Triple Combi 만들기 start");
+        log.info("CombiInfo : Triple make , localDate : {}", localDate2);
+        combiService.makeCombiInfo(3,localDate2);
+
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "Double Combi 만들기 start");
+        log.info("CombiInfo : Double make, localDate : {}", localDate2);
+        combiService.makeCombiInfo(2,localDate2);
+
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "Solo Combi 만들기 start");
+        log.info("CombiInfo : Solo make, localDate : {}", localDate2);
+        combiService.makeCombiInfo(1,localDate2);
+
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "Penta Combi 만들기 start");
+        log.info("CombiInfo : Penta make, localDate : {}", localDate2);
+        combiService.makeCombiInfo(5,localDate2);
+        log.info("2차 가공 end");
+
+
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "Triple Combi 만들기 start");
+        log.info("CombiInfo : Triple make , localDate : {}", localDate3);
+        combiService.makeCombiInfo(3,localDate3);
+
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "Double Combi 만들기 start");
+        log.info("CombiInfo : Double make , localDate : {}", localDate3);
+        combiService.makeCombiInfo(2,localDate3);
+
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "Solo Combi 만들기 start");
+        log.info("CombiInfo : Solo make , localDate : {}", localDate3);
+        combiService.makeCombiInfo(1,localDate3);
+
+        slackNotifyService.sendMessage(slackNotifyService.nowTime() + "Penta Combi 만들기 start");
+        log.info("CombiInfo : Penta make , localDate : {}", localDate3);
+        combiService.makeCombiInfo(5,localDate3);
+        log.info("2차 가공 end");
+
     }
 
     private void makeFullItem(ItemDto item){
