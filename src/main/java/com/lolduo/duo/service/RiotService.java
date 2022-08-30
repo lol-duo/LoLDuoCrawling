@@ -109,7 +109,7 @@ public class RiotService implements ApplicationRunner{
                 "KR_6032944098",
                 "KR_6032809258",
                 "KR_6031458458"};
-        getMatchInfo(new HashSet<>(Arrays.asList(st)));
+        //getMatchInfo(new HashSet<>(Arrays.asList(st)));
         log.info("solo~team 정보 저장완료 ");
         log.info("2차 가공 start");
         Long endTime = System.currentTimeMillis() / 1000;
@@ -148,7 +148,6 @@ public class RiotService implements ApplicationRunner{
             throw new RuntimeException(e);
         }
 
-        /*
         slackNotifyService.sendMessage(yesterday + "challenger list 가져오기 start");
         log.info("get challenger start");
         getPuuIdList("challenger");
@@ -177,11 +176,12 @@ public class RiotService implements ApplicationRunner{
 
         slackNotifyService.sendMessage(yesterday+ "matchId 만들기 start");
         log.info("getMatch Info start : matchListSize : " + matchIdList.size());
-        getMatchInfo(matchIdList);
+        getMatchInfo(matchIdList,yesterday);
         log.info("matchDetail 저장완료 ");
+        slackNotifyService.sendMessage("다음 날짜 데이터 집어넣기 바람");
 
+        /*
         log.info("1차 가공 start");
-        */
         slackNotifyService.sendMessage(yesterday + " 일자 데이터 Match 만들기 Start");
         setMatchInfo(1,yesterday);
         setMatchInfo(2,yesterday);
@@ -207,6 +207,7 @@ public class RiotService implements ApplicationRunner{
         combiService.makeCombiInfo(5,yesterday);
         slackNotifyService.sendMessage(yesterday + "2차 가공 end");
         log.info("2차 가공 end");
+         */
 
     }
 
@@ -244,7 +245,7 @@ public class RiotService implements ApplicationRunner{
         itemFullRepository.save(new ItemFullEntity(4005L));
         itemFullRepository.save(new ItemFullEntity(6617L));
     }
-    private void getMatchInfo(Set<String> matchIdList){
+    private void getMatchInfo(Set<String> matchIdList,LocalDate date){
         String url = "https://asia.api.riotgames.com/lol/match/v5/matches/";
 
         RestTemplate restTemplate = new RestTemplate();
@@ -306,7 +307,7 @@ public class RiotService implements ApplicationRunner{
                     return;
             }
             String tier = getTier(response_match.getBody());
-            matchDetailRepository.save(new MatchDetailEntity(LocalDate.now(ZoneId.of("Asia/Seoul")),response_match.getBody(),  playerItemList, puuIdMap,tier));
+            matchDetailRepository.save(new MatchDetailEntity(date,response_match.getBody(),  playerItemList, puuIdMap,tier));
         });
     }
     private String getTierBySummonerId(String summonerId){
