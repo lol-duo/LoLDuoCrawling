@@ -18,7 +18,7 @@ import java.util.TreeSet;
 
 @Entity
 @NoArgsConstructor
-@Table(name = "penta_combi")
+@Table(name = "penta_combi", indexes = @Index(name = "idx_pos_champ_win_all", columnList = "position, champion_id, win_count, all_count"))
 @Getter
 @TypeDef(name = "json", typeClass = JsonType.class,defaultForType = JsonNode.class)
 public class PentaCombiEntity implements Serializable, ICombiEntity {
@@ -28,11 +28,11 @@ public class PentaCombiEntity implements Serializable, ICombiEntity {
     private Long id;
 
     @Type(type = "json")
-    @Column(name = "champion_id",columnDefinition = "json")
+    @Column(name = "champion_id",columnDefinition = "varchar(50)")
     private TreeSet<Long> championId;
 
     @Type(type = "json")
-    @Column(name = "position", columnDefinition = "json")
+    @Column(name = "position", columnDefinition = "varchar(100)")
     private Map<Long, String> position;
 
     @Column(name = "perk_myth_item")

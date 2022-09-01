@@ -14,7 +14,7 @@ import java.util.*;
 
 @Entity
 @NoArgsConstructor
-@Table(name = "double_combi")
+@Table(name = "double_combi", indexes = @Index(name = "idx_pos_champ_win_all", columnList = "position, champion_id, win_count, all_count"))
 @Getter
 @TypeDef(name = "json", typeClass = JsonType.class,defaultForType = JsonNode.class)
 public class DoubleCombiEntity implements ICombiEntity {
@@ -24,11 +24,11 @@ public class DoubleCombiEntity implements ICombiEntity {
     private Long id;
 
     @Type(type = "json")
-    @Column(name = "champion_id",columnDefinition = "json")
+    @Column(name = "champion_id",columnDefinition = "varchar(50)")
     private TreeSet<Long> championId = new TreeSet<>();
 
     @Type(type = "json")
-    @Column(name = "position", columnDefinition = "json")
+    @Column(name = "position", columnDefinition = "varchar(100)")
     private Map<Long, String> position = new HashMap<>();
 
     @Column(name = "perk_myth_item")

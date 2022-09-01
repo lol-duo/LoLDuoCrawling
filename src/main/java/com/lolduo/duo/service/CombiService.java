@@ -270,8 +270,8 @@ public class CombiService {
         List<Long> mythItemList = MythItemList.getMythItemList();
         StringBuilder perkMythItemBuilder = new StringBuilder();
 
-        List<List<Long>> itemSequenceList = new ArrayList<>(itemListMap.values());
-        List<List<Long>> perkFormationList = new ArrayList<>(perkListMap.values());
+        ArrayList<List<Long>> itemSequenceList = new ArrayList<>(itemListMap.values());
+        ArrayList<List<Long>> perkFormationList = new ArrayList<>(perkListMap.values());
 
         for (int index = 0; index < championCount; index++) {
             for (Long majorPerk : findMajorPerks(perkFormationList.get(index))) {

@@ -126,7 +126,7 @@ public class RiotService implements ApplicationRunner{
     private void All(){
         Long endTime = System.currentTimeMillis() / 1000;
         //임시
-        endTime = 1661785200L;
+        endTime = 1661613300L;
 
         Long startTime = endTime - 86400;
         Set<String> matchIdList = new HashSet<>();
@@ -136,18 +136,7 @@ public class RiotService implements ApplicationRunner{
         log.info("All - endTime : {}", endTime);
         log.info("All - yesterday : {}", yesterday);
 
-
-
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date d = null;
-        LocalDate localDate = null;
-        try {
-            d = dateFormat.parse("2022-08-26");
-            localDate = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-
+/*
         slackNotifyService.sendMessage(yesterday + "challenger list 가져오기 start");
         log.info("get challenger start");
         getPuuIdList("challenger");
@@ -179,36 +168,41 @@ public class RiotService implements ApplicationRunner{
         getMatchInfo(matchIdList,yesterday);
         log.info("matchDetail 저장완료 ");
         slackNotifyService.sendMessage("다음 날짜 데이터 집어넣기 바람");
+*/
 
-        /*
-        log.info("1차 가공 start");
-        slackNotifyService.sendMessage(yesterday + " 일자 데이터 Match 만들기 Start");
-        setMatchInfo(1,yesterday);
-        setMatchInfo(2,yesterday);
-        setMatchInfo(3,yesterday);
-        setMatchInfo(5,yesterday);
-        slackNotifyService.sendMessage( "1차 가공 end 2차 가공 start");
-        log.info("1차 가공 end\n 2차 가공 start");
+        for(int i = 0; i< 5;i++){
+            startTime = endTime - 86400;
+            yesterday =  LocalDate.ofInstant(Instant.ofEpochSecond(startTime), ZoneId.of("Asia/Seoul"));
 
-        slackNotifyService.sendMessage(yesterday + "Triple Combi 만들기 start");
-        log.info("CombiInfo : Triple make , localDate : {}", yesterday);
-        combiService.makeCombiInfo(3,yesterday);
+            log.info("1차 가공 start");
+            slackNotifyService.sendMessage(yesterday + " 일자 데이터 Match 만들기 Start");
+            setMatchInfo(1,yesterday);
+            setMatchInfo(2,yesterday);
+            setMatchInfo(3,yesterday);
+            setMatchInfo(5,yesterday);
+            slackNotifyService.sendMessage( "1차 가공 end 2차 가공 start");
+            log.info("1차 가공 end\n 2차 가공 start");
 
-        slackNotifyService.sendMessage(yesterday + "Double Combi 만들기 start");
-        log.info("CombiInfo : Double make, localDate : {}",yesterday);
-        combiService.makeCombiInfo(2,yesterday);
+            slackNotifyService.sendMessage(yesterday + "Triple Combi 만들기 start");
+            log.info("CombiInfo : Triple make , localDate : {}", yesterday);
+            combiService.makeCombiInfo(3,yesterday);
 
-        slackNotifyService.sendMessage(yesterday + "Solo Combi 만들기 start");
-        log.info("CombiInfo : Solo make, localDate : {}",yesterday);
-        combiService.makeCombiInfo(1,yesterday);
+            slackNotifyService.sendMessage(yesterday + "Double Combi 만들기 start");
+            log.info("CombiInfo : Double make, localDate : {}",yesterday);
+            combiService.makeCombiInfo(2,yesterday);
 
-        slackNotifyService.sendMessage(yesterday + "Penta Combi 만들기 start");
-        log.info("CombiInfo : Penta make, localDate : {}",yesterday);
-        combiService.makeCombiInfo(5,yesterday);
-        slackNotifyService.sendMessage(yesterday + "2차 가공 end");
-        log.info("2차 가공 end");
-         */
+            slackNotifyService.sendMessage(yesterday + "Solo Combi 만들기 start");
+            log.info("CombiInfo : Solo make, localDate : {}",yesterday);
+            combiService.makeCombiInfo(1,yesterday);
 
+            slackNotifyService.sendMessage(yesterday + "Penta Combi 만들기 start");
+            log.info("CombiInfo : Penta make, localDate : {}",yesterday);
+            combiService.makeCombiInfo(5,yesterday);
+            slackNotifyService.sendMessage(yesterday + "2차 가공 end");
+            log.info("2차 가공 end");
+
+            endTime +=86400;
+        }
     }
 
     private void makeFullItem(ItemDto item){
