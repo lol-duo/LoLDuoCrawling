@@ -1,7 +1,7 @@
 HELP.md
 .gradle
 build/
-localkey.yml
+src/main/resources/localkey.yml
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
