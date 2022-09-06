@@ -6,10 +6,10 @@ import lombok.Getter;
 public class LeagueItem {
     private Boolean freshBlood;
     private Long wins;
-    private String summerName;
+    private String summonerName;
     private MiniSeries miniSeries;
     private Boolean inactive;
-    private Boolean verteran;
+    private Boolean veteran;
     private Boolean hotStreak;
     private String rank;
     private Long leaguePoints;

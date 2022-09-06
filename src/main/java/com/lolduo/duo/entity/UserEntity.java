@@ -13,28 +13,27 @@ import javax.persistence.Table;
 @Table(name = "user")
 @Getter
 public class UserEntity {
+
     @Id
+    @Column(name = "summoner_id")
+    private String summonerId;
     @Column(name = "puuid")
     private String puuid;
 
     @Column(name = "summoner_name")
     private String summonerName;
-
-    @Column(name = "summoner_id")
-    private String summonerId;
-
     @Column(name = "tier")
     private String tier;
 
-    public UserEntity(String puuid, String summonerName, String summonerId, String tier) {
+    @Column(name = "rank")
+    private String rank;
+
+    public UserEntity(String summonerId, String puuid, String summonerName, String tier, String rank) {
+        this.summonerId = summonerId;
         this.puuid = puuid;
         this.summonerName = summonerName;
-        this.summonerId = summonerId;
         this.tier = tier;
-    }
-
-    public void setSummonerId(String summonerId) {
-        this.summonerId = summonerId;
+        this.rank = rank;
     }
 
     public void setSummonerName(String summonerName) {
@@ -43,5 +42,9 @@ public class UserEntity {
 
     public void setTier(String tier) {
         this.tier = tier;
+    }
+
+    public void setRank(String rank) {
+        this.rank = rank;
     }
 }

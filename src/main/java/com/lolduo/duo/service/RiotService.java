@@ -3,6 +3,8 @@ package com.lolduo.duo.service;
 
 import com.lolduo.duo.dto.RiotAPI.league_v4.LeagueListDTO;
 import com.lolduo.duo.dto.RiotAPI.summoner_v4.SummonerDTO;
+import com.lolduo.duo.entity.UserEntity;
+import com.lolduo.duo.repository.UserRepository;
 import com.lolduo.duo.service.slack.SlackNotifyService;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -24,47 +26,34 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 public class RiotService implements ApplicationRunner{
 
-    @Value("${riot.key}")
-    private String riotKey;
+
     private final SlackNotifyService slackNotifyService;
+    private final RiotApiSaveService riotApiSaveService;
+    private final RiotApiList riotApiList;
+    private final UserRepository userRepository;
     @Override
     public void run(ApplicationArguments args) throws Exception{
-
+        getPuuIdList("challenger");
+        getPuuIdList("grandmaster");
+        getPuuIdList("master");
     }
 
-    private HttpEntity<Void> setRiotHeader(){
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Riot-Token", riotKey);
-        return new HttpEntity<>(headers);
-    }
 
-    private void getPuuIdList(String league) {
-        String url = "https://kr.api.riotgames.com/lol/league/v4/"+league+"leagues/by-queue/RANKED_SOLO_5x5";
-        String url_summoner = "https://kr.api.riotgames.com/lol/summoner/v4/summoners/";
+    private void getPuuIdList(String tier) {
 
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<LeagueListDTO> response = null;
+        LeagueListDTO leagueListDTO = riotApiList.getSummonerListByTier(tier);
 
-        try{
-            response = restTemplate.exchange(url, HttpMethod.GET, setRiotHeader(), LeagueListDTO.class);
-        }catch (Exception e){
-            log.info("getPuuIdList 에러발생 : {}",e.getMessage());
-            slackNotifyService.sendMessage("getPuuid 1번 error \n" + e.getMessage());
-            return;
-        }
+        leagueListDTO.getEntries().forEach(leagueItemDTO -> {
 
-        response.getBody().getEntries().forEach(leagueItemDTO -> {
-            String puuid = null;
-            try{
-                puuid = restTemplate.exchange(url_summoner + leagueItemDTO.getSummonerId(), HttpMethod.GET, setRiotHeader(), SummonerDTO.class).getBody().getPuuid();
-            }catch (Exception e){
-                log.info("getPuuIdList 에러발생 summuner: {}",e.getMessage());
-                slackNotifyService.sendMessage("getPuuid 2번 error \n" + e.getMessage());
-                return;
+            UserEntity userEntity = userRepository.findById(leagueItemDTO.getSummonerId()).orElse(null);
+
+            if(userEntity == null){
+                SummonerDTO summonerDTO = riotApiList.getPuuIdBySummonerId(leagueItemDTO.getSummonerId());
+                riotApiSaveService.userSave(leagueItemDTO, summonerDTO.getPuuid(), tier);
             }
-
-
-
+            else{
+                riotApiSaveService.userSave(leagueItemDTO, userEntity.getPuuid(),tier);
+            }
         });
         return;
     }
