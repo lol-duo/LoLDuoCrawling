@@ -76,8 +76,7 @@ public class RiotService implements ApplicationRunner{
                     riotApiSaveService.userSave(leagueEntiry, userEntity.getPuuid());
                 }
             });
-
-        }while(leagueEntiryDTO.size() != MAX);
+        }while(leagueEntiryDTO.size() == MAX);
     }
 
 
