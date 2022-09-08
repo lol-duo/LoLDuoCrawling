@@ -14,6 +14,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -46,6 +47,21 @@ public class RiotService implements ApplicationRunner{
         setUserByTierAndRank("DIAMOND", "III");
         log.info("DIAMOND III 종료 time: {} ", LocalDateTime.now());
         setUserByTierAndRank("DIAMOND", "IV");
+        log.info("DIAMOND IV 종료 time: {} ", LocalDateTime.now());
+
+        setAllMatchByTier("challenger");
+        log.info("challenger 종료 time: {} ", LocalDateTime.now());
+        setAllMatchByTier("grandmaster");
+        log.info("grandmaster 종료 time: {} ", LocalDateTime.now());
+        setAllMatchByTier("master");
+        log.info("master 종료 time: {} ", LocalDateTime.now());
+        setAllMatchByTierAndRank("DIAMOND", "I");
+        log.info("DIAMOND I 종료 time: {} ", LocalDateTime.now());
+        setAllMatchByTierAndRank("DIAMOND", "II");
+        log.info("DIAMOND II 종료 time: {} ", LocalDateTime.now());
+        setAllMatchByTierAndRank("DIAMOND", "III");
+        log.info("DIAMOND III 종료 time: {} ", LocalDateTime.now());
+        setAllMatchByTierAndRank("DIAMOND", "IV");
         log.info("DIAMOND IV 종료 time: {} ", LocalDateTime.now());
     }
 
@@ -90,6 +106,29 @@ public class RiotService implements ApplicationRunner{
             }
         });
         return;
+    }
+    private void setAllMatchByTier(String tier){
+        List<UserEntity> userEntityList = userRepository.findAllByTier(tier);
+        userEntityList.forEach(userEntity -> {
+            setMatchListByPuuid(userEntity.getPuuid());
+        });
+    }
+
+    private void setAllMatchByTierAndRank(String tier, String rank){
+        List<UserEntity> userEntityList = userRepository.findAllByTierAndRank(tier, rank);
+        userEntityList.forEach(userEntity -> {
+            setMatchListByPuuid(userEntity.getPuuid());
+        });
+    }
+    private void setMatchListByPuuid(String puuid){
+        Long now = System.currentTimeMillis();
+        Long beginTime = now - 1000 * 60 * 60 * 24;
+        LocalDate nowDate = LocalDate.now();
+
+        List<String> matchList = riotApiList.getMatchId(beginTime, now, puuid);
+        matchList.forEach(matchId -> {
+            riotApiSaveService.matchSave(matchId, puuid, nowDate);
+        });
     }
 
 
