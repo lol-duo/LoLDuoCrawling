@@ -31,38 +31,42 @@ public class RiotService implements ApplicationRunner{
     private final UserRepository userRepository;
 
     private final Integer MAX = 205;
+    private void setLog(String message){
+        log.info(message);
+        slackNotifyService.sendMessage(message);
+    }
     @Override
     public void run(ApplicationArguments args) throws Exception{
-        log.info("RiotService 시작 time: {} ", LocalDateTime.now());
+        setLog("RiotService start");
         setUserByTopTier("challenger");
-        log.info("challenger 종료 time: {} ", LocalDateTime.now());
+        setLog("challenger 종료 time : "+ LocalDateTime.now());
         setUserByTopTier("grandmaster");
-        log.info("grandmaster 종료 time: {} ", LocalDateTime.now());
+        setLog("grandmaster 종료 time : "+ LocalDateTime.now());
         setUserByTopTier("master");
-        log.info("master 종료 time: {} ", LocalDateTime.now());
+        setLog("master 종료 time : "+ LocalDateTime.now());
         setUserByTierAndRank("DIAMOND", "I");
-        log.info("DIAMOND I 종료 time: {} ", LocalDateTime.now());
+        setLog("DIAMOND I 종료 time : "+ LocalDateTime.now());
         setUserByTierAndRank("DIAMOND", "II");
-        log.info("DIAMOND II 종료 time: {} ", LocalDateTime.now());
+        setLog("DIAMOND II 종료 time : "+ LocalDateTime.now());
         setUserByTierAndRank("DIAMOND", "III");
-        log.info("DIAMOND III 종료 time: {} ", LocalDateTime.now());
+        setLog("DIAMOND III 종료 time : "+ LocalDateTime.now());
         setUserByTierAndRank("DIAMOND", "IV");
-        log.info("DIAMOND IV 종료 time: {} ", LocalDateTime.now());
+        setLog("DIAMOND IV 종료 time : "+ LocalDateTime.now());
 
         setAllMatchByTier("challenger");
-        log.info("challenger 종료 time: {} ", LocalDateTime.now());
+        setLog("challenger 종료 time : "+ LocalDateTime.now());
         setAllMatchByTier("grandmaster");
-        log.info("grandmaster 종료 time: {} ", LocalDateTime.now());
+        setLog("grandmaster 종료 time : "+ LocalDateTime.now());
         setAllMatchByTier("master");
-        log.info("master 종료 time: {} ", LocalDateTime.now());
+        setLog("master 종료 time : "+ LocalDateTime.now());
         setAllMatchByTierAndRank("DIAMOND", "I");
-        log.info("DIAMOND I 종료 time: {} ", LocalDateTime.now());
+        setLog("DIAMOND I 종료 time : "+ LocalDateTime.now());
         setAllMatchByTierAndRank("DIAMOND", "II");
-        log.info("DIAMOND II 종료 time: {} ", LocalDateTime.now());
+        setLog("DIAMOND II 종료 time : "+ LocalDateTime.now());
         setAllMatchByTierAndRank("DIAMOND", "III");
-        log.info("DIAMOND III 종료 time: {} ", LocalDateTime.now());
+        setLog("DIAMOND III 종료 time : "+ LocalDateTime.now());
         setAllMatchByTierAndRank("DIAMOND", "IV");
-        log.info("DIAMOND IV 종료 time: {} ", LocalDateTime.now());
+        setLog("DIAMOND IV 종료 time : "+ LocalDateTime.now());
     }
 
     private void setUserByTierAndRank(String tier, String rank){
