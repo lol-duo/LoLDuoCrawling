@@ -30,12 +30,12 @@ public class RiotApiList {
     /** api 호출 시간을 조절하는 함수*/
     private void checkTime(){
         Long nowMillis = System.currentTimeMillis();
-        if(nowMillis - currentMillis > 200){
+        if(nowMillis - currentMillis > 205){
             currentMillis = nowMillis;
         }
         else{
             try {
-                Thread.sleep(200 - (nowMillis - currentMillis));
+                Thread.sleep(205 - (nowMillis - currentMillis));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -78,6 +78,7 @@ public class RiotApiList {
         }
     }
 
+
     public List<LeagueEntiryDTO> getSummonerListByTier(String tier, String rank, Long page){
         checkTime();
         String url = "https://kr.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5/"+tier+"/"+rank+"?page=" + page;
@@ -86,6 +87,19 @@ public class RiotApiList {
             return List.of(response.getBody());
         }catch (Exception e){
             log.info("getPuuIdList 에러발생 : {}",e.getMessage());
+            slackNotifyService.sendMessage("getPuuid 3번 error \n" + e.getMessage());
+            return null;
+        }
+    }
+
+    public List<String> getMatchId(Long startTime, Long endTime, String puuid) {
+        checkTime();
+        String url = "https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/"+ puuid + "/ids?startTime=" + startTime + "&endTime=" + endTime + "&type=ranked&start=0&count=100";
+        try {
+            ResponseEntity<List> response = new RestTemplate().exchange(url , HttpMethod.GET, setRiotHeader(), List.class);
+            return response.getBody();
+        }catch (Exception e) {
+            log.info("getMatchId 에러발생 : {}",e.getMessage());
             slackNotifyService.sendMessage("getPuuid 3번 error \n" + e.getMessage());
             return null;
         }
