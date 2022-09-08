@@ -30,12 +30,12 @@ public class RiotApiList {
     /** api 호출 시간을 조절하는 함수*/
     private void checkTime(){
         Long nowMillis = System.currentTimeMillis();
-        if(nowMillis - currentMillis > 200){
+        if(nowMillis - currentMillis > 205){
             currentMillis = nowMillis;
         }
         else{
             try {
-                Thread.sleep(200 - (nowMillis - currentMillis));
+                Thread.sleep(205 - (nowMillis - currentMillis));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
