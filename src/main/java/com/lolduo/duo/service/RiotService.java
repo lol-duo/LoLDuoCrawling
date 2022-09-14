@@ -1,10 +1,13 @@
 package com.lolduo.duo.service;
 
 
+import com.lolduo.duo.data.NowLocalDate;
 import com.lolduo.duo.dto.RiotAPI.league_v4.LeagueEntiryDTO;
 import com.lolduo.duo.dto.RiotAPI.league_v4.LeagueListDTO;
+import com.lolduo.duo.dto.RiotAPI.match_v5.MatchDto;
 import com.lolduo.duo.dto.RiotAPI.summoner_v4.SummonerDTO;
 import com.lolduo.duo.entity.UserEntity;
+import com.lolduo.duo.repository.UserMatchIdRepository;
 import com.lolduo.duo.repository.UserRepository;
 import com.lolduo.duo.service.slack.SlackNotifyService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +32,7 @@ public class RiotService implements ApplicationRunner{
     private final RiotApiSaveService riotApiSaveService;
     private final RiotApiList riotApiList;
     private final UserRepository userRepository;
+    private final UserMatchIdRepository matchIdRepository;
 
     private final Integer MAX = 205;
     private void setLog(String message){
@@ -37,10 +41,14 @@ public class RiotService implements ApplicationRunner{
     }
     @Override
     public void run(ApplicationArguments args) throws Exception{
+        Long endTime = System.currentTimeMillis() / 1000;
+        Long startTime = endTime - 60 * 60 * 24;
+        NowLocalDate nowLocalDate = new NowLocalDate(startTime, endTime, LocalDate.now());
+
         setLog("RiotService start");
         setUserByTopTier("challenger");
         setLog("challenger 종료 time : "+ LocalDateTime.now());
-        setUserByTopTier("grandmaster");
+        /*setUserByTopTier("grandmaster");
         setLog("grandmaster 종료 time : "+ LocalDateTime.now());
         setUserByTopTier("master");
         setLog("master 종료 time : "+ LocalDateTime.now());
@@ -51,22 +59,25 @@ public class RiotService implements ApplicationRunner{
         setUserByTierAndRank("DIAMOND", "III");
         setLog("DIAMOND III 종료 time : "+ LocalDateTime.now());
         setUserByTierAndRank("DIAMOND", "IV");
-        setLog("DIAMOND IV 종료 time : "+ LocalDateTime.now());
+        setLog("DIAMOND IV 종료 time : "+ LocalDateTime.now());*/
 
-        setAllMatchByTier("challenger");
+
+        setAllMatchByTier("challenger", nowLocalDate);
         setLog("challenger 종료 time : "+ LocalDateTime.now());
-        setAllMatchByTier("grandmaster");
+        /*setAllMatchByTier("grandmaster", nowLocalDate);
         setLog("grandmaster 종료 time : "+ LocalDateTime.now());
-        setAllMatchByTier("master");
+        setAllMatchByTier("master", nowLocalDate);
         setLog("master 종료 time : "+ LocalDateTime.now());
-        setAllMatchByTierAndRank("DIAMOND", "I");
+        setAllMatchByTierAndRank("DIAMOND", "I", nowLocalDate);
         setLog("DIAMOND I 종료 time : "+ LocalDateTime.now());
-        setAllMatchByTierAndRank("DIAMOND", "II");
+        setAllMatchByTierAndRank("DIAMOND", "II", nowLocalDate);
         setLog("DIAMOND II 종료 time : "+ LocalDateTime.now());
-        setAllMatchByTierAndRank("DIAMOND", "III");
+        setAllMatchByTierAndRank("DIAMOND", "III", nowLocalDate);
         setLog("DIAMOND III 종료 time : "+ LocalDateTime.now());
-        setAllMatchByTierAndRank("DIAMOND", "IV");
-        setLog("DIAMOND IV 종료 time : "+ LocalDateTime.now());
+        setAllMatchByTierAndRank("DIAMOND", "IV", nowLocalDate);
+        setLog("DIAMOND IV 종료 time : "+ LocalDateTime.now());*/
+
+        setMatchDetailByNowLocalDate(nowLocalDate);
     }
 
     private void setUserByTierAndRank(String tier, String rank){
@@ -112,29 +123,36 @@ public class RiotService implements ApplicationRunner{
         });
         return;
     }
-    private void setAllMatchByTier(String tier){
+    private void setAllMatchByTier(String tier, NowLocalDate nowDate){
         List<UserEntity> userEntityList = userRepository.findAllByTier(tier);
         userEntityList.forEach(userEntity -> {
-            setMatchListByPuuid(userEntity.getPuuid());
+            setMatchListByPuuid(userEntity.getPuuid(), nowDate);
         });
     }
 
-    private void setAllMatchByTierAndRank(String tier, String rank){
+    private void setAllMatchByTierAndRank(String tier, String rank, NowLocalDate nowDate){
         List<UserEntity> userEntityList = userRepository.findAllByTierAndRank(tier, rank);
         userEntityList.forEach(userEntity -> {
-            setMatchListByPuuid(userEntity.getPuuid());
+            setMatchListByPuuid(userEntity.getPuuid(), nowDate);
         });
     }
-    private void setMatchListByPuuid(String puuid){
-        Long now = System.currentTimeMillis();
-        Long beginTime = now - 1000 * 60 * 60 * 24;
-        LocalDate nowDate = LocalDate.now();
+    private void setMatchListByPuuid(String puuid, NowLocalDate nowDate){
 
-        List<String> matchList = riotApiList.getMatchId(beginTime, now, puuid);
+        List<String> matchList = riotApiList.getMatchId(nowDate.getStartTime(), nowDate.getEndTime(), puuid);
+
         matchList.forEach(matchId -> {
-            riotApiSaveService.matchSave(matchId, puuid, nowDate);
+            riotApiSaveService.matchSave(matchId, puuid, nowDate.getLocalDate());
         });
+
     }
 
+    private void setMatchDetailByNowLocalDate(NowLocalDate nowDate){
+        List<String> matchIdList = matchIdRepository.findAllIdByDate(nowDate.getLocalDate());
+        slackNotifyService.sendMessage("date: " + nowDate.getLocalDate() + " matchIdList size : "+matchIdList.size());
+        matchIdList.forEach(matchId -> {
+            MatchDto matchDTO = riotApiList.getMatchDetailByMatchId(matchId);
+            riotApiSaveService.matchDetailSave(matchDTO, nowDate.getLocalDate());
+        });
+    }
 
 }

@@ -3,8 +3,11 @@ package com.lolduo.duo.service;
 import com.lolduo.duo.dto.RiotAPI.league_v4.LeagueEntiryDTO;
 import com.lolduo.duo.dto.RiotAPI.league_v4.LeagueItem;
 import com.lolduo.duo.dto.RiotAPI.league_v4.LeagueListDTO;
+import com.lolduo.duo.dto.RiotAPI.match_v5.MatchDto;
+import com.lolduo.duo.entity.MatchDetailEntity;
 import com.lolduo.duo.entity.UserEntity;
 import com.lolduo.duo.entity.UserMatchIdEntity;
+import com.lolduo.duo.repository.MatchDetailRepository;
 import com.lolduo.duo.repository.UserMatchIdRepository;
 import com.lolduo.duo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ public class RiotApiSaveService {
 
     private final UserRepository userRepository;
     private final UserMatchIdRepository userMatchIdRepository;
+    private final MatchDetailRepository matchDetailRepository;
 
     public boolean isSameUserInfo(UserEntity userEntity, LeagueEntiryDTO leagueEntiryDTO){
         if(!userEntity.getSummonerName().equals(leagueEntiryDTO.getSummonerName()))
@@ -63,8 +67,15 @@ public class RiotApiSaveService {
     }
 
     public void matchSave(String matchId, String puuid, LocalDate localDate){
-        UserMatchIdEntity userMatchIdEntity = new UserMatchIdEntity(puuid,matchId,localDate);
-        userMatchIdRepository.save(userMatchIdEntity);
+        UserMatchIdEntity userMatchIdEntity = userMatchIdRepository.findByMatchIdAndPuuid(matchId, puuid);
+        if(userMatchIdEntity == null)
+            userMatchIdRepository.save(new UserMatchIdEntity(matchId, puuid, localDate));
+    }
+
+    public void matchDetailSave(MatchDto matchDto, LocalDate localDate){
+        MatchDetailEntity matchDetailEntity = matchDetailRepository.findById(matchDto.getMetadata().getMatchId()).orElse(null);
+        if(matchDetailEntity == null)
+            matchDetailRepository.save(new MatchDetailEntity(matchDto.getMetadata().getMatchId(),localDate,matchDto));
     }
 
 }

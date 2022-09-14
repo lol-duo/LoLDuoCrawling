@@ -2,6 +2,7 @@ package com.lolduo.duo.service;
 
 import com.lolduo.duo.dto.RiotAPI.league_v4.LeagueEntiryDTO;
 import com.lolduo.duo.dto.RiotAPI.league_v4.LeagueListDTO;
+import com.lolduo.duo.dto.RiotAPI.match_v5.MatchDto;
 import com.lolduo.duo.dto.RiotAPI.summoner_v4.SummonerDTO;
 import com.lolduo.duo.service.slack.SlackNotifyService;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +59,7 @@ public class RiotApiList {
             return new RestTemplate().exchange(url, HttpMethod.GET, setRiotHeader(), LeagueListDTO.class).getBody();
         }catch (Exception e){
             log.info("getPuuIdList 에러발생 : {}",e.getMessage());
-            slackNotifyService.sendMessage("getPuuid 1번 error \n" + e.getMessage());
+            slackNotifyService.sendMessage("riot summonerList tier error \n" + e.getMessage());
             return null;
         }
     }
@@ -73,7 +74,7 @@ public class RiotApiList {
             return new RestTemplate().exchange(url, HttpMethod.GET, setRiotHeader(), SummonerDTO.class).getBody();
         }catch (Exception e){
             log.info("getPuuIdList 에러발생 summuner: {}",e.getMessage());
-            slackNotifyService.sendMessage("getPuuid 2번 error \n" + e.getMessage());
+            slackNotifyService.sendMessage("riot summonerIdDetail(puuid) error \n" + e.getMessage());
             return null;
         }
     }
@@ -87,20 +88,33 @@ public class RiotApiList {
             return List.of(response.getBody());
         }catch (Exception e){
             log.info("getPuuIdList 에러발생 : {}",e.getMessage());
-            slackNotifyService.sendMessage("getPuuid 3번 error \n" + e.getMessage());
+            slackNotifyService.sendMessage("riot summonerList rank error \n" + e.getMessage());
             return null;
         }
     }
 
     public List<String> getMatchId(Long startTime, Long endTime, String puuid) {
         checkTime();
+        log.info("getMatchId : {} ~ {} / {}", startTime, endTime, puuid);
         String url = "https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/"+ puuid + "/ids?startTime=" + startTime + "&endTime=" + endTime + "&type=ranked&start=0&count=100";
         try {
             ResponseEntity<List> response = new RestTemplate().exchange(url , HttpMethod.GET, setRiotHeader(), List.class);
+            log.info("getMatchId : {}", response.getBody());
             return response.getBody();
         }catch (Exception e) {
             log.info("getMatchId 에러발생 : {}",e.getMessage());
-            slackNotifyService.sendMessage("getPuuid 3번 error \n" + e.getMessage());
+            slackNotifyService.sendMessage("riot matchId api error \n" + e.getMessage());
+            return null;
+        }
+    }
+    public MatchDto getMatchDetailByMatchId(String matchId) {
+        checkTime();
+        String url = "https://asia.api.riotgames.com/lol/match/v5/matches/" + matchId;
+        try {
+            return new RestTemplate().exchange(url , HttpMethod.GET, setRiotHeader(), MatchDto.class).getBody();
+        }catch (Exception e) {
+            log.info("getMatchDetailByMatchId 에러발생 : {}",e.getMessage());
+            slackNotifyService.sendMessage("riot matchDetail api error \n" + e.getMessage());
             return null;
         }
     }
