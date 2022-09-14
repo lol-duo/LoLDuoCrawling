@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -25,9 +26,7 @@ import java.util.List;
 @EnableScheduling
 @RequiredArgsConstructor
 @Slf4j
-public class RiotService implements ApplicationRunner{
-
-
+public class RiotService{
     private final SlackNotifyService slackNotifyService;
     private final RiotApiSaveService riotApiSaveService;
     private final RiotApiList riotApiList;
@@ -39,8 +38,9 @@ public class RiotService implements ApplicationRunner{
         log.info(message);
         slackNotifyService.sendMessage(message);
     }
-    @Override
-    public void run(ApplicationArguments args) throws Exception{
+
+    @Scheduled(cron = "0 0 0 * * *")
+    private void settingPackage(){
         Long endTime = System.currentTimeMillis() / 1000;
         Long startTime = endTime - 60 * 60 * 24;
         NowLocalDate nowLocalDate = new NowLocalDate(startTime, endTime, LocalDate.now());
@@ -48,7 +48,7 @@ public class RiotService implements ApplicationRunner{
         setLog("RiotService start");
         setUserByTopTier("challenger");
         setLog("challenger 종료 time : "+ LocalDateTime.now());
-        /*setUserByTopTier("grandmaster");
+        setUserByTopTier("grandmaster");
         setLog("grandmaster 종료 time : "+ LocalDateTime.now());
         setUserByTopTier("master");
         setLog("master 종료 time : "+ LocalDateTime.now());
@@ -59,12 +59,11 @@ public class RiotService implements ApplicationRunner{
         setUserByTierAndRank("DIAMOND", "III");
         setLog("DIAMOND III 종료 time : "+ LocalDateTime.now());
         setUserByTierAndRank("DIAMOND", "IV");
-        setLog("DIAMOND IV 종료 time : "+ LocalDateTime.now());*/
-
+        setLog("DIAMOND IV 종료 time : "+ LocalDateTime.now());
 
         setAllMatchByTier("challenger", nowLocalDate);
         setLog("challenger 종료 time : "+ LocalDateTime.now());
-        /*setAllMatchByTier("grandmaster", nowLocalDate);
+        setAllMatchByTier("grandmaster", nowLocalDate);
         setLog("grandmaster 종료 time : "+ LocalDateTime.now());
         setAllMatchByTier("master", nowLocalDate);
         setLog("master 종료 time : "+ LocalDateTime.now());
@@ -75,10 +74,13 @@ public class RiotService implements ApplicationRunner{
         setAllMatchByTierAndRank("DIAMOND", "III", nowLocalDate);
         setLog("DIAMOND III 종료 time : "+ LocalDateTime.now());
         setAllMatchByTierAndRank("DIAMOND", "IV", nowLocalDate);
-        setLog("DIAMOND IV 종료 time : "+ LocalDateTime.now());*/
+        setLog("DIAMOND IV 종료 time : "+ LocalDateTime.now());
 
         setMatchDetailByNowLocalDate(nowLocalDate);
+        setLog("setMatchDetailByNowLocalDate 종료 time : "+ LocalDateTime.now());
     }
+
+
 
     private void setUserByTierAndRank(String tier, String rank){
         Long page = 1L;
@@ -147,12 +149,20 @@ public class RiotService implements ApplicationRunner{
     }
 
     private void setMatchDetailByNowLocalDate(NowLocalDate nowDate){
-        List<String> matchIdList = matchIdRepository.findAllIdByDate(nowDate.getLocalDate());
-        slackNotifyService.sendMessage("date: " + nowDate.getLocalDate() + " matchIdList size : "+matchIdList.size());
-        matchIdList.forEach(matchId -> {
-            MatchDto matchDTO = riotApiList.getMatchDetailByMatchId(matchId);
-            riotApiSaveService.matchDetailSave(matchDTO, nowDate.getLocalDate());
-        });
+        Long matchIdListSize = matchIdRepository.countByDate(nowDate.getLocalDate());
+
+        Integer start = 0, count = 1000;
+        List<String> matchIdList = matchIdRepository.findAllIdByDate(nowDate.getLocalDate(),start,count);
+
+        do {
+            setLog("matchDetail 진행도 : " + start + " / " + matchIdListSize);
+            matchIdList.forEach(matchId -> {
+                MatchDto matchDTO = riotApiList.getMatchDetailByMatchId(matchId);
+                riotApiSaveService.matchDetailSave(matchDTO, nowDate.getLocalDate());
+            });
+            start += count;
+            matchIdList = matchIdRepository.findAllIdByDate(nowDate.getLocalDate(), start, count);
+        }while(matchIdList.size() != 0);
     }
 
 }
