@@ -69,7 +69,7 @@ public class RiotApiSaveService {
     public void matchSave(String matchId, String puuid, LocalDate localDate){
         UserMatchIdEntity userMatchIdEntity = userMatchIdRepository.findByMatchIdAndPuuid(matchId, puuid);
         if(userMatchIdEntity == null)
-            userMatchIdRepository.save(new UserMatchIdEntity(matchId, puuid, localDate));
+            userMatchIdRepository.save(new UserMatchIdEntity(puuid, matchId, localDate));
     }
 
     public void matchDetailSave(MatchDto matchDto, LocalDate localDate){

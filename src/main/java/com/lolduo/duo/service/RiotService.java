@@ -26,7 +26,7 @@ import java.util.List;
 @EnableScheduling
 @RequiredArgsConstructor
 @Slf4j
-public class RiotService implements ApplicationRunner{
+public class RiotService{
     private final SlackNotifyService slackNotifyService;
     private final RiotApiSaveService riotApiSaveService;
     private final RiotApiList riotApiList;
@@ -37,15 +37,6 @@ public class RiotService implements ApplicationRunner{
     private void setLog(String message){
         log.info(message);
         slackNotifyService.sendMessage(message);
-    }
-
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        Long endTime = 1663200000L;
-        Long startTime = 1663113600L;
-        NowLocalDate nowLocalDate = new NowLocalDate(startTime, endTime, LocalDate.now());
-        setMatchDetailByNowLocalDate(nowLocalDate);
-        setLog("setMatchDetailByNowLocalDate 종료 time : "+ LocalDateTime.now());
     }
     @Scheduled(cron = "0 0 0 * * *")
     private void settingPackage(){
