@@ -95,11 +95,9 @@ public class RiotApiList {
 
     public List<String> getMatchId(Long startTime, Long endTime, String puuid) {
         checkTime();
-        log.info("getMatchId : {} ~ {} / {}", startTime, endTime, puuid);
         String url = "https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/"+ puuid + "/ids?startTime=" + startTime + "&endTime=" + endTime + "&type=ranked&start=0&count=100";
         try {
             ResponseEntity<List> response = new RestTemplate().exchange(url , HttpMethod.GET, setRiotHeader(), List.class);
-            log.info("getMatchId : {}", response.getBody());
             return response.getBody();
         }catch (Exception e) {
             log.info("getMatchId 에러발생 : {}",e.getMessage());
@@ -114,7 +112,7 @@ public class RiotApiList {
             return new RestTemplate().exchange(url , HttpMethod.GET, setRiotHeader(), MatchDto.class).getBody();
         }catch (Exception e) {
             log.info("getMatchDetailByMatchId 에러발생 : {}",e.getMessage());
-            slackNotifyService.sendMessage("riot matchDetail api error \n" + e.getMessage());
+            slackNotifyService.sendMessage("riot matchDetail api error \n" + e.getMessage() + "matchId : " + matchId);
             return null;
         }
     }
