@@ -150,7 +150,7 @@ public class RiotService{
     private void setMatchDetailByNowLocalDate(NowLocalDate nowDate){
         Long matchIdListSize = matchIdRepository.countByDate(nowDate.getLocalDate());
 
-        Integer start = 0, count = 1000;
+        Integer start = 0, count = 5000;
         List<String> matchIdList = matchIdRepository.findAllIdByDate(nowDate.getLocalDate(),start,count);
 
         do {
