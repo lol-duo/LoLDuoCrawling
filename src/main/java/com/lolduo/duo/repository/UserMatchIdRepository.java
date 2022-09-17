@@ -11,6 +11,7 @@ public interface UserMatchIdRepository extends JpaRepository<UserMatchIdEntity, 
     @Query(value = "select distinct match_id from user_match where date = ?1 limit ?2, ?3", nativeQuery = true)
     List<String> findAllIdByDate(LocalDate date, int start, int count);
 
+    @Query("select count(distinct um.matchId) from UserMatchIdEntity um where um.date = ?1")
     Long countByDate(LocalDate date);
     UserMatchIdEntity findByMatchIdAndPuuid(String matchId, String puuid);
 }
