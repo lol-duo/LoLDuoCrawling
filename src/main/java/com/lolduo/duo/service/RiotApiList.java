@@ -4,6 +4,10 @@ import com.lolduo.duo.dto.RiotAPI.league_v4.LeagueEntiryDTO;
 import com.lolduo.duo.dto.RiotAPI.league_v4.LeagueListDTO;
 import com.lolduo.duo.dto.RiotAPI.match_v5.MatchDto;
 import com.lolduo.duo.dto.RiotAPI.summoner_v4.SummonerDTO;
+import com.lolduo.duo.dto.ddr.champion.ChampionDto;
+import com.lolduo.duo.dto.ddr.item.ItemDto;
+import com.lolduo.duo.dto.ddr.perk.PerkDto;
+import com.lolduo.duo.dto.ddr.spell.SpellDto;
 import com.lolduo.duo.service.slack.SlackNotifyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -43,6 +48,8 @@ public class RiotApiList {
             currentMillis = System.currentTimeMillis();
         }
     }
+
+    /** api 헤더 설정 함수*/
     private HttpEntity<Void> setRiotHeader(){
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-Riot-Token", riotKey);
@@ -66,7 +73,7 @@ public class RiotApiList {
 
     /** summonerId로 puuid를 가져온다.
      * @return SummonerDTO || null
-     * @param summonerId*/
+     * @param summonerId - summonerId */
     public SummonerDTO getPuuIdBySummonerId(String summonerId){
         checkTime();
         String url = "https://kr.api.riotgames.com/lol/summoner/v4/summoners/" + summonerId;
@@ -116,4 +123,65 @@ public class RiotApiList {
             return null;
         }
     }
+
+    /** ddr 사이트에서 아이템 정보를 가져오는 함수
+     * RIOT KEY를 사용하지 않음
+     * @return ItemDto || null
+     * @param version - 롤 패치 버전*/
+    public ItemDto setItem(String version) {
+        String url = "https://ddragon.leagueoflegends.com/cdn/" + version + "/data/ko_KR/item.json";
+        try {
+            return new RestTemplate().exchange(url, HttpMethod.GET, setRiotHeader(), ItemDto.class).getBody();
+        } catch (Exception e) {
+            log.info("setItem 에러발생 : {}", e.getMessage());
+            slackNotifyService.sendMessage("riot initial Data api(DDR - Item) error \n" + e.getMessage());
+            return null;
+        }
+    }
+
+    /** ddr 사이트에서 챔피언 정보를 가져오는 함수
+     * RIOT KEY를 사용하지 않음
+     * @return ChampionDto || null
+     * @param version - 롤 패치 버전 */
+    public ChampionDto setChampion(String version) {
+        String url = "https://ddragon.leagueoflegends.com/cdn/" + version + "/data/ko_KR/champion.json";
+        try {
+            return new RestTemplate().exchange(url, HttpMethod.GET, setRiotHeader(), ChampionDto.class).getBody();
+        } catch (Exception e) {
+            log.info("setChampion 에러발생 : {}", e.getMessage());
+            slackNotifyService.sendMessage("riot initial Data api(DDR - Champion) error \n" + e.getMessage());
+            return null;
+        }
+    }
+
+    /** ddr 사이트에서 스펠 정보를 가져오는 함수
+     * RIOT KEY를 사용하지 않음
+     * @return SpellDto || null
+     * @param version - 롤 패치 버전 */
+    public SpellDto setSpell(String version) {
+        String url = "https://ddragon.leagueoflegends.com/cdn/" + version + "/data/ko_KR/summoner.json";
+        try {
+            return new RestTemplate().exchange(url, HttpMethod.GET, setRiotHeader(), SpellDto.class).getBody();
+        } catch (Exception e) {
+            log.info("setSpell 에러발생 : {}", e.getMessage());
+            slackNotifyService.sendMessage("riot initial Data api(DDR - Spell) error \n" + e.getMessage());
+            return null;
+        }
+    }
+
+    /** ddr 사이트에서 룬 정보를 가져오는 함수
+     * RIOT KEY를 사용하지 않음
+     * @return List<PerkDto> || null
+     * @param version - 롤 패치 버전 */
+    private List<PerkDto> setPerk(String version){
+        String url = "https://ddragon.leagueoflegends.com/cdn/"+version+"/data/ko_KR/runesReforged.json";
+        try{
+            return Arrays.asList(new RestTemplate().exchange(url, HttpMethod.GET, setRiotHeader(), PerkDto[].class).getBody());
+        } catch (Exception e){
+            log.info("setPerk 에러발생 : {}", e.getMessage());
+            slackNotifyService.sendMessage("riot initial Data api(DDR - Perk) error \n" + e.getMessage());
+            return null;
+        }
+    }
+
 }
