@@ -1,6 +1,7 @@
 package com.lolduo.duo.entity;
 
 import com.lolduo.duo.dto.RiotAPI.match_v5.MatchDto;
+import com.lolduo.duo.dto.RiotAPI.timeline.MatchTimeLineDto;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,9 +31,14 @@ public class MatchDetailEntity {
     @Column(name = "match_info", columnDefinition = "json")
     private MatchDto matchInfo;
 
-    public MatchDetailEntity(String matchId, LocalDate date, MatchDto matchInfo) {
+    @Type(type = "json")
+    @Column(name = "match_timeline_info", columnDefinition = "json")
+    private MatchTimeLineDto matchTimeLineDto;
+
+    public MatchDetailEntity(String matchId, LocalDate date, MatchDto matchInfo,MatchTimeLineDto matchTimeLineDto) {
         this.matchId = matchId;
         this.date = date;
         this.matchInfo = matchInfo;
+        this.matchTimeLineDto = matchTimeLineDto;
     }
 }

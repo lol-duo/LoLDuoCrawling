@@ -2,10 +2,9 @@ package com.lolduo.duo.service;
 
 import com.lolduo.duo.dto.RiotAPI.league_v4.LeagueEntiryDTO;
 import com.lolduo.duo.dto.RiotAPI.league_v4.LeagueItem;
-import com.lolduo.duo.dto.RiotAPI.league_v4.LeagueListDTO;
 import com.lolduo.duo.dto.RiotAPI.match_v5.MatchDto;
+import com.lolduo.duo.dto.RiotAPI.timeline.MatchTimeLineDto;
 import com.lolduo.duo.dto.ddr.champion.ChampionDto;
-import com.lolduo.duo.dto.ddr.champion.Data;
 import com.lolduo.duo.dto.ddr.item.ItemDto;
 import com.lolduo.duo.dto.ddr.perk.PerkDto;
 import com.lolduo.duo.dto.ddr.perk.PerkRune;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -88,16 +86,17 @@ public class RiotApiSaveService {
             userMatchIdRepository.save(new UserMatchIdEntity(puuid, matchId, localDate));
     }
 
-    public void matchDetailSave(MatchDto matchDto, LocalDate localDate){
+    public void matchDetailSave(MatchDto matchDto, LocalDate localDate, MatchTimeLineDto matchTimeLineDto){
         MatchDetailEntity matchDetailEntity = matchDetailRepository.findById(matchDto.getMetadata().getMatchId()).orElse(null);
         if(matchDetailEntity == null)
-            matchDetailRepository.save(new MatchDetailEntity(matchDto.getMetadata().getMatchId(),localDate,matchDto));
+            matchDetailRepository.save(new MatchDetailEntity(matchDto.getMetadata().getMatchId(),localDate,matchDto,matchTimeLineDto));
     }
 
     public void championInitialDataSave(ChampionDto championDto){
         Set<String> championIdList = championDto.getData().keySet();
         for(String championId : championIdList) {
-            championRepository.save(new ChampionEntity(Long.parseLong(championDto.getData().get(championId).getKey()),championDto.getData().get(championId).getName(),championId+".png" ));
+            if(championRepository.findById(Long.valueOf(championId)) == null)
+                championRepository.save(new ChampionEntity(Long.parseLong(championDto.getData().get(championId).getKey()),championDto.getData().get(championId).getName(),championId+".png" ));
         }
     }
     public void spellInitialDataSave(SpellDto spellDto){
@@ -105,7 +104,8 @@ public class RiotApiSaveService {
         for(String spellId : spellIdList){
             if(Integer.parseInt(spellDto.getData().get(spellId).getKey()) >21)
                 continue;
-            spellRepository.save(new SpellEntity(Long.parseLong(spellDto.getData().get(spellId).getKey()),spellDto.getData().get(spellId).getName(),spellId+".png"));
+            if(spellRepository.findById(Long.valueOf(spellId)) == null)
+                spellRepository.save(new SpellEntity(Long.parseLong(spellDto.getData().get(spellId).getKey()),spellDto.getData().get(spellId).getName(),spellId+".png"));
         }
     }
     public void perkInitialDataSave(List<PerkDto> perkDtoList){
@@ -113,19 +113,24 @@ public class RiotApiSaveService {
             for(int i = 0; i < perkDto.getSlots().size(); i++){
                 List<PerkRune> perkRuneList = perkDto.getSlots().get(i).getRunes();
                 for(int j = 0; j < perkRuneList.size(); j++){
-                    perkRepository.save(new PerkEntity(perkRuneList.get(j).getId(),perkRuneList.get(j).getName(), perkRuneList.get(j).getIcon()));
+                    if(perkRepository.findById(perkRuneList.get(j).getId()) == null)
+                        perkRepository.save(new PerkEntity(perkRuneList.get(j).getId(),perkRuneList.get(j).getName(), perkRuneList.get(j).getIcon()));
                 }
             }
-            perkRepository.save(new PerkEntity(perkDto.getId(), perkDto.getName(), perkDto.getIcon()));
+            if(perkRepository.findById(perkDto.getId()) == null)
+                perkRepository.save(new PerkEntity(perkDto.getId(), perkDto.getName(), perkDto.getIcon()));
         });
     }
     public void itemInitialDataSave(ItemDto itemDto){
         Set<String> itemIdList = itemDto.getData().keySet();
         for(String itemId : itemIdList){
-            itemRepository.save(new ItemEntity(Long.parseLong(itemId), itemDto.getData().get(itemId).getName(),itemId + ".png"));
+            if(itemRepository.findById(Long.parseLong(itemId)) == null)
+                itemRepository.save(new ItemEntity(Long.parseLong(itemId), itemDto.getData().get(itemId).getName(),itemId + ".png"));
         }
     }
     public void fullItemInitialDataSave(ItemDto itemDto){
+        if(itemFullRepository.findAll() !=null)
+            return;
         Set<String> itemIdList = itemDto.getData().keySet();
         for(String itemId : itemIdList){
             if(itemDto.getData().get(itemId).getInto() == null && itemDto.getData().get(itemId).getGold().getTotal() > 1500L){

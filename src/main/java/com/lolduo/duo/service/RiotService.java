@@ -6,14 +6,15 @@ import com.lolduo.duo.dto.RiotAPI.league_v4.LeagueEntiryDTO;
 import com.lolduo.duo.dto.RiotAPI.league_v4.LeagueListDTO;
 import com.lolduo.duo.dto.RiotAPI.match_v5.MatchDto;
 import com.lolduo.duo.dto.RiotAPI.summoner_v4.SummonerDTO;
+import com.lolduo.duo.dto.RiotAPI.timeline.MatchTimeLineDto;
 import com.lolduo.duo.entity.UserEntity;
 import com.lolduo.duo.repository.UserMatchIdRepository;
 import com.lolduo.duo.repository.UserRepository;
 import com.lolduo.duo.service.slack.SlackNotifyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -33,18 +34,36 @@ public class RiotService{
     private final UserRepository userRepository;
     private final UserMatchIdRepository matchIdRepository;
 
+    private boolean isDetailWorking = false;
     private final Integer MAX = 205;
     private void setLog(String message){
         log.info(message);
         slackNotifyService.sendMessage(message);
     }
-    @Scheduled(cron = "0 0 0 * * *")
-    private void settingPackage(){
+    public ResponseEntity<?> settingInitialData(String version){
+        riotApiSaveService.championInitialDataSave(riotApiList.setChampion(version));
+        riotApiSaveService.itemInitialDataSave(riotApiList.setItem(version));
+        riotApiSaveService.fullItemInitialDataSave(riotApiList.setItem(version));
+        riotApiSaveService.spellInitialDataSave(riotApiList.setSpell(version));
+        riotApiSaveService.perkInitialDataSave(riotApiList.setPerk(version));
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @Scheduled(cron = "0 0 0 * * *",zone = "Asia/Seoul")
+    public ResponseEntity<?> settingPackage(){
+        if(isDetailWorking){
+            setLog("saveMatchDetail이 이미 동작중입니다.");
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        else {
+            isDetailWorking = true;
+            setLog("RiotService start");
+        }
         Long endTime = System.currentTimeMillis() / 1000;
         Long startTime = endTime - 60 * 60 * 24;
+
         NowLocalDate nowLocalDate = new NowLocalDate(startTime, endTime, LocalDate.now());
 
-        setLog("RiotService start");
+
         setUserByTopTier("challenger");
         setLog("challenger 종료 time : "+ LocalDateTime.now());
         setUserByTopTier("grandmaster");
@@ -59,6 +78,17 @@ public class RiotService{
         setLog("DIAMOND III 종료 time : "+ LocalDateTime.now());
         setUserByTierAndRank("DIAMOND", "IV");
         setLog("DIAMOND IV 종료 time : "+ LocalDateTime.now());
+
+
+        setUserByTierAndRank("PLATINUM", "I");
+        setLog("PLATINUM I 종료 time : "+ LocalDateTime.now());
+        setUserByTierAndRank("PLATINUM", "II");
+        setLog("PLATINUM II 종료 time : "+ LocalDateTime.now());
+        setUserByTierAndRank("PLATINUM", "III");
+        setLog("PLATINUM III 종료 time : "+ LocalDateTime.now());
+        setUserByTierAndRank("PLATINUM", "IV");
+        setLog("PLATINUM IV 종료 time : "+ LocalDateTime.now());
+
 
         setAllMatchByTier("challenger", nowLocalDate);
         setLog("challenger 종료 time : "+ LocalDateTime.now());
@@ -75,11 +105,21 @@ public class RiotService{
         setAllMatchByTierAndRank("DIAMOND", "IV", nowLocalDate);
         setLog("DIAMOND IV 종료 time : "+ LocalDateTime.now());
 
+        setAllMatchByTierAndRank("PLATINUM", "I", nowLocalDate);
+        setLog("PLATINUM I 종료 time : "+ LocalDateTime.now());
+        setAllMatchByTierAndRank("PLATINUM", "II", nowLocalDate);
+        setLog("PLATINUM II 종료 time : "+ LocalDateTime.now());
+        setAllMatchByTierAndRank("PLATINUM", "III", nowLocalDate);
+        setLog("PLATINUM III 종료 time : "+ LocalDateTime.now());
+        setAllMatchByTierAndRank("PLATINUM", "IV", nowLocalDate);
+        setLog("PLATINUM IV 종료 time : "+ LocalDateTime.now());
+
         setMatchDetailByNowLocalDate(nowLocalDate);
         setLog("setMatchDetailByNowLocalDate 종료 time : "+ LocalDateTime.now());
+
+        isDetailWorking = false;
+        return new ResponseEntity<>(HttpStatus.OK);
     }
-
-
 
     private void setUserByTierAndRank(String tier, String rank){
         Long page = 1L;
@@ -109,7 +149,6 @@ public class RiotService{
     private void setUserByTopTier(String tier) {
 
         LeagueListDTO leagueListDTO = riotApiList.getSummonerListByTier(tier);
-
         leagueListDTO.getEntries().forEach(leagueItemDTO -> {
 
             UserEntity userEntity = userRepository.findById(leagueItemDTO.getSummonerId()).orElse(null);
@@ -122,7 +161,6 @@ public class RiotService{
                 riotApiSaveService.userSave(leagueItemDTO, userEntity.getPuuid(),tier);
             }
         });
-        return;
     }
     private void setAllMatchByTier(String tier, NowLocalDate nowDate){
         List<UserEntity> userEntityList = userRepository.findAllByTier(tier);
@@ -157,7 +195,8 @@ public class RiotService{
             setLog("matchDetail 진행도 : " + start + " / " + matchIdListSize);
             matchIdList.forEach(matchId -> {
                 MatchDto matchDTO = riotApiList.getMatchDetailByMatchId(matchId);
-                riotApiSaveService.matchDetailSave(matchDTO, nowDate.getLocalDate());
+                MatchTimeLineDto matchTimeLineDto = riotApiList.getMatchTimeLineByMatchId(matchId);
+                riotApiSaveService.matchDetailSave(matchDTO, nowDate.getLocalDate(),matchTimeLineDto);
             });
             start += count;
             matchIdList = matchIdRepository.findAllIdByDate(nowDate.getLocalDate(), start, count);

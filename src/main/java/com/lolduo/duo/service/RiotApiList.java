@@ -4,6 +4,7 @@ import com.lolduo.duo.dto.RiotAPI.league_v4.LeagueEntiryDTO;
 import com.lolduo.duo.dto.RiotAPI.league_v4.LeagueListDTO;
 import com.lolduo.duo.dto.RiotAPI.match_v5.MatchDto;
 import com.lolduo.duo.dto.RiotAPI.summoner_v4.SummonerDTO;
+import com.lolduo.duo.dto.RiotAPI.timeline.MatchTimeLineDto;
 import com.lolduo.duo.dto.ddr.champion.ChampionDto;
 import com.lolduo.duo.dto.ddr.item.ItemDto;
 import com.lolduo.duo.dto.ddr.perk.PerkDto;
@@ -12,7 +13,6 @@ import com.lolduo.duo.service.slack.SlackNotifyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -49,6 +49,17 @@ public class RiotApiList {
         }
     }
 
+    /** N초 동안 sleep 하는 함수
+     * N = sleepTime */
+    private void sleepAndRestart(){
+        Long SLEEP_TIME = 300000L;
+        try {
+            slackNotifyService.sendMessage(SLEEP_TIME/1000L +"초 후 재실행합니다. \n");
+            Thread.sleep(SLEEP_TIME);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
     /** api 헤더 설정 함수*/
     private HttpEntity<Void> setRiotHeader(){
         HttpHeaders headers = new HttpHeaders();
@@ -58,16 +69,18 @@ public class RiotApiList {
 
     /** 해당 tier의 유저들을 가져온다.(challenger, grandmaster, master)
      * @return LeagueListDTO || null
-     * @param tier*/
+     * @param tier - user의 rank*/
     public LeagueListDTO getSummonerListByTier(String tier){
         checkTime();
-        String url = "https://kr.api.riotgames.com/lol/league/v4/"+tier+"leagues/by-queue/RANKED_SOLO_5x5";
-        try{
-            return new RestTemplate().exchange(url, HttpMethod.GET, setRiotHeader(), LeagueListDTO.class).getBody();
-        }catch (Exception e){
-            log.info("getPuuIdList 에러발생 : {}",e.getMessage());
-            slackNotifyService.sendMessage("riot summonerList tier error \n" + e.getMessage());
-            return null;
+        while(true) {
+            String url = "https://kr.api.riotgames.com/lol/league/v4/" + tier + "leagues/by-queue/RANKED_SOLO_5x5";
+            try {
+                return new RestTemplate().exchange(url, HttpMethod.GET, setRiotHeader(), LeagueListDTO.class).getBody();
+            } catch (Exception e) {
+                log.info("getPuuIdList 에러발생 : {}", e.getMessage());
+                slackNotifyService.sendMessage("riot summonerList tier error \n" + e.getMessage());
+                sleepAndRestart();
+            }
         }
     }
 
@@ -76,51 +89,72 @@ public class RiotApiList {
      * @param summonerId - summonerId */
     public SummonerDTO getPuuIdBySummonerId(String summonerId){
         checkTime();
-        String url = "https://kr.api.riotgames.com/lol/summoner/v4/summoners/" + summonerId;
-        try{
-            return new RestTemplate().exchange(url, HttpMethod.GET, setRiotHeader(), SummonerDTO.class).getBody();
-        }catch (Exception e){
-            log.info("getPuuIdList 에러발생 summuner: {}",e.getMessage());
-            slackNotifyService.sendMessage("riot summonerIdDetail(puuid) error \n" + e.getMessage());
-            return null;
+        while(true) {
+            String url = "https://kr.api.riotgames.com/lol/summoner/v4/summoners/" + summonerId;
+            try {
+                return new RestTemplate().exchange(url, HttpMethod.GET, setRiotHeader(), SummonerDTO.class).getBody();
+            } catch (Exception e) {
+                log.info("getPuuIdList 에러발생 summuner: {}", e.getMessage());
+                slackNotifyService.sendMessage("riot summonerIdDetail(puuid) error \n" + e.getMessage());
+                sleepAndRestart();
+            }
         }
     }
 
 
     public List<LeagueEntiryDTO> getSummonerListByTier(String tier, String rank, Long page){
         checkTime();
-        String url = "https://kr.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5/"+tier+"/"+rank+"?page=" + page;
-        try{
-            ResponseEntity<LeagueEntiryDTO[]> response = new RestTemplate().exchange(url, HttpMethod.GET, setRiotHeader(), LeagueEntiryDTO[].class);
-            return List.of(response.getBody());
-        }catch (Exception e){
-            log.info("getPuuIdList 에러발생 : {}",e.getMessage());
-            slackNotifyService.sendMessage("riot summonerList rank error \n" + e.getMessage());
-            return null;
+        while(true) {
+            String url = "https://kr.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5/" + tier + "/" + rank + "?page=" + page;
+            try {
+                ResponseEntity<LeagueEntiryDTO[]> response = new RestTemplate().exchange(url, HttpMethod.GET, setRiotHeader(), LeagueEntiryDTO[].class);
+                return List.of(response.getBody());
+            } catch (Exception e) {
+                log.info("getPuuIdList 에러발생 : {}", e.getMessage());
+                slackNotifyService.sendMessage("riot summonerList rank error \n" + e.getMessage());
+                sleepAndRestart();
+            }
         }
     }
 
     public List<String> getMatchId(Long startTime, Long endTime, String puuid) {
         checkTime();
-        String url = "https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/"+ puuid + "/ids?startTime=" + startTime + "&endTime=" + endTime + "&type=ranked&start=0&count=100";
-        try {
-            ResponseEntity<List> response = new RestTemplate().exchange(url , HttpMethod.GET, setRiotHeader(), List.class);
-            return response.getBody();
-        }catch (Exception e) {
-            log.info("getMatchId 에러발생 : {}",e.getMessage());
-            slackNotifyService.sendMessage("riot matchId api error \n" + e.getMessage());
-            return null;
+        while(true) {
+            String url = "https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/" + puuid + "/ids?startTime=" + startTime + "&endTime=" + endTime + "&type=ranked&start=0&count=100";
+            try {
+                ResponseEntity<List> response = new RestTemplate().exchange(url, HttpMethod.GET, setRiotHeader(), List.class);
+                return response.getBody();
+            } catch (Exception e) {
+                log.info("getMatchId 에러발생 : {}", e.getMessage());
+                slackNotifyService.sendMessage("riot matchId api error \n" + e.getMessage());
+                sleepAndRestart();
+            }
         }
     }
     public MatchDto getMatchDetailByMatchId(String matchId) {
         checkTime();
-        String url = "https://asia.api.riotgames.com/lol/match/v5/matches/" + matchId;
-        try {
-            return new RestTemplate().exchange(url , HttpMethod.GET, setRiotHeader(), MatchDto.class).getBody();
-        }catch (Exception e) {
-            log.info("getMatchDetailByMatchId 에러발생 : {}",e.getMessage());
-            slackNotifyService.sendMessage("riot matchDetail api error \n" + e.getMessage() + "matchId : " + matchId);
-            return null;
+        while(true) {
+            String url = "https://asia.api.riotgames.com/lol/match/v5/matches/" + matchId;
+            try {
+                return new RestTemplate().exchange(url, HttpMethod.GET, setRiotHeader(), MatchDto.class).getBody();
+            } catch (Exception e) {
+                log.info("getMatchDetailByMatchId 에러발생 : {}", e.getMessage());
+                slackNotifyService.sendMessage("riot matchDetail api error \n" + e.getMessage() + "matchId : " + matchId);
+                sleepAndRestart();
+            }
+        }
+    }
+    public MatchTimeLineDto getMatchTimeLineByMatchId(String matchId){
+        checkTime();
+        while(true) {
+            String url = "https://asia.api.riotgames.com/lol/match/v5/matches/" + matchId + "/timeline";
+            try {
+                return new RestTemplate().exchange(url, HttpMethod.GET, setRiotHeader(), MatchTimeLineDto.class).getBody();
+            } catch (Exception e) {
+                log.info("getMatchTimeLineByMatchId 에러발생 : {}", e.getMessage());
+                slackNotifyService.sendMessage("riot match TimeLine api error \n" + e.getMessage() + "matchId : " + matchId);
+                sleepAndRestart();
+            }
         }
     }
 
@@ -173,7 +207,7 @@ public class RiotApiList {
      * RIOT KEY를 사용하지 않음
      * @return List<PerkDto> || null
      * @param version - 롤 패치 버전 */
-    private List<PerkDto> setPerk(String version){
+    public List<PerkDto> setPerk(String version){
         String url = "https://ddragon.leagueoflegends.com/cdn/"+version+"/data/ko_KR/runesReforged.json";
         try{
             return Arrays.asList(new RestTemplate().exchange(url, HttpMethod.GET, setRiotHeader(), PerkDto[].class).getBody());
