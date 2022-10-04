@@ -95,7 +95,7 @@ public class RiotApiSaveService {
     public void championInitialDataSave(ChampionDto championDto){
         Set<String> championIdList = championDto.getData().keySet();
         for(String championId : championIdList) {
-            if(championRepository.findById(Long.valueOf(championId)) == null)
+            if(championRepository.findById(Long.parseLong(championDto.getData().get(championId).getKey())) == null)
                 championRepository.save(new ChampionEntity(Long.parseLong(championDto.getData().get(championId).getKey()),championDto.getData().get(championId).getName(),championId+".png" ));
         }
     }
@@ -104,7 +104,7 @@ public class RiotApiSaveService {
         for(String spellId : spellIdList){
             if(Integer.parseInt(spellDto.getData().get(spellId).getKey()) >21)
                 continue;
-            if(spellRepository.findById(Long.valueOf(spellId)) == null)
+            if(spellRepository.findById(Long.valueOf(spellDto.getData().get(spellId).getKey())) == null)
                 spellRepository.save(new SpellEntity(Long.parseLong(spellDto.getData().get(spellId).getKey()),spellDto.getData().get(spellId).getName(),spellId+".png"));
         }
     }
