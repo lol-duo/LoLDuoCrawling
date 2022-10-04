@@ -50,6 +50,10 @@ riot:
   key: ${localkey.riotapi.key}
 server:
   port: '8080'
+datadog:
+  enabled: true
+  apiKey: ${localkey.datadog.api.key}
+  step: PT10S
 
 ---
 
@@ -72,6 +76,10 @@ riot:
   key: ${riotapi.key}
 server:
   port: '80'
+datadog:
+  enabled: true
+  apiKey: ${datadog.api.key}
+  step: PT10S
 
 ---
 
@@ -94,3 +102,7 @@ riot:
   key: ${riotapi.key}
 server:
   port: '80'
+datadog:
+  enabled: true
+  apiKey: ${datadog.api.key}
+  step: PT10S
