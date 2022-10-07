@@ -44,9 +44,7 @@ public class RiotApiSaveService {
             return false;
         if(!userEntity.getTier().equals(leagueEntiryDTO.getTier()))
             return false;
-        if(!userEntity.getRank().equals(leagueEntiryDTO.getRank()))
-            return false;
-        return true;
+        return userEntity.getRank().equals(leagueEntiryDTO.getRank());
     }
 
     public boolean isSameUserInfo(UserEntity userEntity, LeagueItem leagueItem, String tier){
@@ -54,9 +52,7 @@ public class RiotApiSaveService {
             return false;
         if(!userEntity.getTier().equals(tier))
             return false;
-        if(!userEntity.getRank().equals(leagueItem.getRank()))
-            return false;
-        return true;
+        return userEntity.getRank().equals(leagueItem.getRank());
     }
 
     public void userSave(LeagueEntiryDTO leagueEntiryDTO, String puuid){
@@ -95,14 +91,15 @@ public class RiotApiSaveService {
     }
 
     public void championInitialDataSave(ChampionDto championDto){
-        log.info(championDto.toString());
         Set<String> championIdList = championDto.getData().keySet();
         for(String championId : championIdList) {
-            log.info(championId +" : " + Long.parseLong(championDto.getData().get(championId).getKey()) + ", " + championDto.getData().get(championId).getName() +" , " + championId+".png");
-            if(championRepository.findById(Long.parseLong(championDto.getData().get(championId).getKey())) == null)
-                championRepository.save(new ChampionEntity(Long.parseLong(championDto.getData().get(championId).getKey()),championDto.getData().get(championId).getName(),championId+".png" ));
+            ChampionEntity championEntity = championRepository.findById(Long.parseLong(championDto.getData().get(championId).getKey())).orElse(null);
+            if(championEntity ==null) {
+                championRepository.save(new ChampionEntity(Long.parseLong(championDto.getData().get(championId).getKey()), championDto.getData().get(championId).getName(), championId + ".png"));
+                log.info("Champion : " + Long.parseLong(championDto.getData().get(championId).getKey()) + ", " + championDto.getData().get(championId).getName() +" , " + championId+".png" + " 저장");
+            }
             else
-                log.info(championId +"은 null 입니다.");
+                log.info(Long.parseLong(championDto.getData().get(championId).getKey()) + "라는 ID가 Champion 테이블에 이미 존재합니다. 저장하지 않습니다");
         }
     }
     public void spellInitialDataSave(SpellDto spellDto){
@@ -110,37 +107,52 @@ public class RiotApiSaveService {
         for(String spellId : spellIdList){
             if(Integer.parseInt(spellDto.getData().get(spellId).getKey()) >21)
                 continue;
-            if(spellRepository.findById(Long.valueOf(spellDto.getData().get(spellId).getKey())) == null)
-                spellRepository.save(new SpellEntity(Long.parseLong(spellDto.getData().get(spellId).getKey()),spellDto.getData().get(spellId).getName(),spellId+".png"));
+            SpellEntity spellEntity = spellRepository.findById(Long.valueOf(spellDto.getData().get(spellId).getKey())).orElse(null);
+            if(spellEntity == null) {
+                spellRepository.save(new SpellEntity(Long.parseLong(spellDto.getData().get(spellId).getKey()), spellDto.getData().get(spellId).getName(), spellId + ".png"));
+                log.info("Spell : " + Long.parseLong(spellDto.getData().get(spellId).getKey()) + ", " + spellDto.getData().get(spellId).getName() + ", " + spellId + ".png 저장");
+            }
+            else
+                log.info(Long.valueOf(spellDto.getData().get(spellId).getKey()) + "라는 ID가 Spell 테이블에 이미 존재합니다. 저장하지 않습니다.");
         }
     }
     public void perkInitialDataSave(List<PerkDto> perkDtoList){
         perkDtoList.forEach(perkDto -> {
             for(int i = 0; i < perkDto.getSlots().size(); i++){
                 List<PerkRune> perkRuneList = perkDto.getSlots().get(i).getRunes();
-                for(int j = 0; j < perkRuneList.size(); j++){
-                    if(perkRepository.findById(perkRuneList.get(j).getId()) == null)
-                        perkRepository.save(new PerkEntity(perkRuneList.get(j).getId(),perkRuneList.get(j).getName(), perkRuneList.get(j).getIcon()));
+                for (PerkRune perkRune : perkRuneList) {
+                    PerkEntity perkEntity = (perkRepository.findById(perkRune.getId()).orElse(null));
+                    if (perkEntity == null) {
+                        perkRepository.save(new PerkEntity(perkRune.getId(), perkRune.getName(), perkRune.getIcon()));
+                        log.info("Perk : " + perkRune.getId() + ", " + perkRune.getName() + ", " + perkRune.getIcon() + " 저장");
+                    }
                 }
             }
-            if(perkRepository.findById(perkDto.getId()) == null)
+            PerkEntity perkEntity = perkRepository.findById(perkDto.getId()).orElse(null);
+            if(perkEntity == null) {
                 perkRepository.save(new PerkEntity(perkDto.getId(), perkDto.getName(), perkDto.getIcon()));
-        });
+                log.info("Perk : " + perkDto.getId() + ", " +perkDto.getName() + ", " + perkDto.getIcon() +" 저장");
+            }
+            });
     }
     public void itemInitialDataSave(ItemDto itemDto){
         Set<String> itemIdList = itemDto.getData().keySet();
         for(String itemId : itemIdList){
-            if(itemRepository.findById(Long.parseLong(itemId)) == null)
-                itemRepository.save(new ItemEntity(Long.parseLong(itemId), itemDto.getData().get(itemId).getName(),itemId + ".png"));
+            ItemEntity itemEntity = itemRepository.findById(Long.parseLong(itemId)).orElse(null);
+            if(itemEntity == null) {
+                itemRepository.save(new ItemEntity(Long.parseLong(itemId), itemDto.getData().get(itemId).getName(), itemId + ".png"));
+                log.info("Item : " + Long.parseLong(itemId) + ", " + itemDto.getData().get(itemId).getName() + ", " + itemId + ".png" + " 저장");
+            }
         }
     }
     public void fullItemInitialDataSave(ItemDto itemDto){
-        if(itemFullRepository.findAll() !=null)
+        if(itemFullRepository.findAll().size() !=0)
             return;
         Set<String> itemIdList = itemDto.getData().keySet();
         for(String itemId : itemIdList){
             if(itemDto.getData().get(itemId).getInto() == null && itemDto.getData().get(itemId).getGold().getTotal() > 1500L){
                 itemFullRepository.save(new ItemFullEntity(Long.parseLong(itemId)));
+                log.info("ItemFull : " +Long.parseLong(itemId) +" 저장");
             }
         }
         //신화 추가 부분, 신화는 오른때문에 진화트리가 있어버려서, ddr api만으로는 신화구분이 어려움.따라서 직접 추가.
