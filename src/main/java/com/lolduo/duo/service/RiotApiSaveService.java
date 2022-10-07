@@ -18,6 +18,7 @@ import com.lolduo.duo.repository.MatchDetailRepository;
 import com.lolduo.duo.repository.UserMatchIdRepository;
 import com.lolduo.duo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -26,6 +27,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RiotApiSaveService {
 
     private final UserRepository userRepository;
@@ -93,10 +95,14 @@ public class RiotApiSaveService {
     }
 
     public void championInitialDataSave(ChampionDto championDto){
+        log.info(championDto.toString());
         Set<String> championIdList = championDto.getData().keySet();
         for(String championId : championIdList) {
+            log.info(championId +" : " + Long.parseLong(championDto.getData().get(championId).getKey()) + ", " + championDto.getData().get(championId).getName() +" , " + championId+".png");
             if(championRepository.findById(Long.parseLong(championDto.getData().get(championId).getKey())) == null)
                 championRepository.save(new ChampionEntity(Long.parseLong(championDto.getData().get(championId).getKey()),championDto.getData().get(championId).getName(),championId+".png" ));
+            else
+                log.info(championId +"은 null 입니다.");
         }
     }
     public void spellInitialDataSave(SpellDto spellDto){
