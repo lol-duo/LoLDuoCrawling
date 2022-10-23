@@ -13,6 +13,7 @@ import com.lolduo.duo.repository.UserRepository;
 import com.lolduo.duo.service.slack.SlackNotifyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -185,14 +186,14 @@ public class RiotService{
 
     }
 
-    private void setMatchDetailByNowLocalDate(NowLocalDate nowDate){
+    private void setMatchDetailByNowLocalDate(@NotNull NowLocalDate nowDate){
         Long matchIdListSize = matchIdRepository.countByDate(nowDate.getLocalDate());
 
         Integer start = 0, count = 5000;
         List<String> matchIdList = matchIdRepository.findAllIdByDate(nowDate.getLocalDate(),start,count);
-
         do {
             setLog("matchDetail 진행도 : " + start + " / " + matchIdListSize);
+            setLog("matchDetail 저장 날짜 : " + nowDate.getLocalDate());
             matchIdList.forEach(matchId -> {
                 MatchDto matchDTO = riotApiList.getMatchDetailByMatchId(matchId);
                 MatchTimeLineDto matchTimeLineDto = riotApiList.getMatchTimeLineByMatchId(matchId);
