@@ -49,12 +49,14 @@ public class RiotService  implements ApplicationRunner {
         riotApiSaveService.fullItemInitialDataSave(riotApiList.setItem(version));
         riotApiSaveService.spellInitialDataSave(riotApiList.setSpell(version));
         riotApiSaveService.perkInitialDataSave(riotApiList.setPerk(version));
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        localTest();
     }
 
     public ResponseEntity<?> localTest(){
@@ -64,14 +66,29 @@ public class RiotService  implements ApplicationRunner {
         NowLocalDate nowLocalDate = new NowLocalDate(startTime, endTime, LocalDate.now());
 
         setUserByTopTier("challenger");
-        log.info("challenger User End !!");
+        setLog("challenger setUser 종료 time : "+ LocalDateTime.now());
+
+        setUserByTopTier("grandmaster");
+        setLog("grandmaster setUser 종료 time : "+ LocalDateTime.now());
+
+        setUserByTopTier("master");
+        setLog("master setUser 종료 time : "+ LocalDateTime.now());
+
         setAllMatchByTier("challenger", nowLocalDate);
-        log.info("challenger Match End !!");
+        setLog("challenger setAllMatch 종료 time : "+ LocalDateTime.now());
+
+        setAllMatchByTier("grandmaster", nowLocalDate);
+        setLog("grandmaster setAllMatch 종료 time : "+ LocalDateTime.now());
+
+        setAllMatchByTier("master", nowLocalDate);
+        setLog("master setAllMatch 종료 time : "+ LocalDateTime.now());
+
         setMatchDetailByNowLocalDate(nowLocalDate);
-        log.info("challenger END !!");
+        setLog("setMatchDetailByNowLocalDate 종료 time : "+ LocalDateTime.now());
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    @Scheduled(cron = "0 0 0 * * *",zone = "Asia/Seoul")
+    //@Scheduled(cron = "0 0 0 * * *",zone = "Asia/Seoul")
     public ResponseEntity<?> settingPackage(){
         if(isDetailWorking){
             setLog("saveMatchDetail이 이미 동작중입니다.");
@@ -101,7 +118,6 @@ public class RiotService  implements ApplicationRunner {
         setLog("DIAMOND III setUser 종료 time : "+ LocalDateTime.now());
         setUserByTierAndRank("DIAMOND", "IV");
         setLog("DIAMOND IV setUser 종료 time : "+ LocalDateTime.now());
-
         /*
         setUserByTierAndRank("PLATINUM", "I");
         setLog("PLATINUM I setUser종료 time : "+ LocalDateTime.now());
