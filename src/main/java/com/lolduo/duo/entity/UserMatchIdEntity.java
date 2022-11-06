@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 @Entity
 @NoArgsConstructor
-@Table(name = "user_match")
+@Table(name = "user_match",indexes = {@Index(name = "puuid",columnList = "puuid"),@Index(name = "date",columnList = "date"),@Index(name ="matchId" ,columnList = "match_id")})
 @Getter
 public class UserMatchIdEntity {
 

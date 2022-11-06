@@ -14,6 +14,8 @@ import com.lolduo.duo.service.slack.SlackNotifyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -28,7 +30,7 @@ import java.util.List;
 @EnableScheduling
 @RequiredArgsConstructor
 @Slf4j
-public class RiotService{
+public class RiotService  implements ApplicationRunner {
     private final SlackNotifyService slackNotifyService;
     private final RiotApiSaveService riotApiSaveService;
     private final RiotApiList riotApiList;
@@ -47,9 +49,46 @@ public class RiotService{
         riotApiSaveService.fullItemInitialDataSave(riotApiList.setItem(version));
         riotApiSaveService.spellInitialDataSave(riotApiList.setSpell(version));
         riotApiSaveService.perkInitialDataSave(riotApiList.setPerk(version));
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    @Scheduled(cron = "0 0 0 * * *",zone = "Asia/Seoul")
+
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        localTest();
+    }
+
+    public ResponseEntity<?> localTest(){
+        Long endTime = System.currentTimeMillis() / 1000;
+        Long startTime = endTime - 60 * 60 * 24;
+
+        NowLocalDate nowLocalDate = new NowLocalDate(startTime, endTime, LocalDate.now());
+
+        setUserByTopTier("challenger");
+        setLog("challenger setUser 종료 time : "+ LocalDateTime.now());
+
+        setUserByTopTier("grandmaster");
+        setLog("grandmaster setUser 종료 time : "+ LocalDateTime.now());
+
+        setUserByTopTier("master");
+        setLog("master setUser 종료 time : "+ LocalDateTime.now());
+
+        setAllMatchByTier("challenger", nowLocalDate);
+        setLog("challenger setAllMatch 종료 time : "+ LocalDateTime.now());
+
+        setAllMatchByTier("grandmaster", nowLocalDate);
+        setLog("grandmaster setAllMatch 종료 time : "+ LocalDateTime.now());
+
+        setAllMatchByTier("master", nowLocalDate);
+        setLog("master setAllMatch 종료 time : "+ LocalDateTime.now());
+
+        setMatchDetailByNowLocalDate(nowLocalDate);
+        setLog("setMatchDetailByNowLocalDate 종료 time : "+ LocalDateTime.now());
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    //@Scheduled(cron = "0 0 0 * * *",zone = "Asia/Seoul")
     public ResponseEntity<?> settingPackage(){
         if(isDetailWorking){
             setLog("saveMatchDetail이 이미 동작중입니다.");
@@ -66,54 +105,55 @@ public class RiotService{
 
 
         setUserByTopTier("challenger");
-        setLog("challenger 종료 time : "+ LocalDateTime.now());
+        setLog("challenger setUser 종료 time : "+ LocalDateTime.now());
         setUserByTopTier("grandmaster");
-        setLog("grandmaster 종료 time : "+ LocalDateTime.now());
+        setLog("grandmaster setUser 종료 time : "+ LocalDateTime.now());
         setUserByTopTier("master");
-        setLog("master 종료 time : "+ LocalDateTime.now());
+        setLog("master setUser 종료 time : "+ LocalDateTime.now());
         setUserByTierAndRank("DIAMOND", "I");
-        setLog("DIAMOND I 종료 time : "+ LocalDateTime.now());
+        setLog("DIAMOND I setUser 종료 time : "+ LocalDateTime.now());
         setUserByTierAndRank("DIAMOND", "II");
-        setLog("DIAMOND II 종료 time : "+ LocalDateTime.now());
+        setLog("DIAMOND II setUser 종료 time : "+ LocalDateTime.now());
         setUserByTierAndRank("DIAMOND", "III");
-        setLog("DIAMOND III 종료 time : "+ LocalDateTime.now());
+        setLog("DIAMOND III setUser 종료 time : "+ LocalDateTime.now());
         setUserByTierAndRank("DIAMOND", "IV");
-        setLog("DIAMOND IV 종료 time : "+ LocalDateTime.now());
-
-
+        setLog("DIAMOND IV setUser 종료 time : "+ LocalDateTime.now());
+        /*
         setUserByTierAndRank("PLATINUM", "I");
-        setLog("PLATINUM I 종료 time : "+ LocalDateTime.now());
+        setLog("PLATINUM I setUser종료 time : "+ LocalDateTime.now());
         setUserByTierAndRank("PLATINUM", "II");
-        setLog("PLATINUM II 종료 time : "+ LocalDateTime.now());
+        setLog("PLATINUM II setUser종료 time : "+ LocalDateTime.now());
         setUserByTierAndRank("PLATINUM", "III");
-        setLog("PLATINUM III 종료 time : "+ LocalDateTime.now());
+        setLog("PLATINUM III setUser 종료 time : "+ LocalDateTime.now());
         setUserByTierAndRank("PLATINUM", "IV");
-        setLog("PLATINUM IV 종료 time : "+ LocalDateTime.now());
-
+        setLog("PLATINUM IV setUser 종료 time : "+ LocalDateTime.now());
+        */
 
         setAllMatchByTier("challenger", nowLocalDate);
-        setLog("challenger 종료 time : "+ LocalDateTime.now());
+        setLog("challenger setAllMatch 종료 time : "+ LocalDateTime.now());
         setAllMatchByTier("grandmaster", nowLocalDate);
-        setLog("grandmaster 종료 time : "+ LocalDateTime.now());
+        setLog("grandmaster setAllMatch 종료 time : "+ LocalDateTime.now());
         setAllMatchByTier("master", nowLocalDate);
-        setLog("master 종료 time : "+ LocalDateTime.now());
+        setLog("master setAllMatch 종료 time : "+ LocalDateTime.now());
         setAllMatchByTierAndRank("DIAMOND", "I", nowLocalDate);
-        setLog("DIAMOND I 종료 time : "+ LocalDateTime.now());
+        setLog("DIAMOND I setAllMatch종료 time : "+ LocalDateTime.now());
         setAllMatchByTierAndRank("DIAMOND", "II", nowLocalDate);
-        setLog("DIAMOND II 종료 time : "+ LocalDateTime.now());
+        setLog("DIAMOND II setAllMatch 종료 time : "+ LocalDateTime.now());
         setAllMatchByTierAndRank("DIAMOND", "III", nowLocalDate);
-        setLog("DIAMOND III 종료 time : "+ LocalDateTime.now());
+        setLog("DIAMOND III setAllMatch 종료 time : "+ LocalDateTime.now());
         setAllMatchByTierAndRank("DIAMOND", "IV", nowLocalDate);
-        setLog("DIAMOND IV 종료 time : "+ LocalDateTime.now());
+        setLog("DIAMOND IV setAllMatch 종료 time : "+ LocalDateTime.now());
 
+        /*
         setAllMatchByTierAndRank("PLATINUM", "I", nowLocalDate);
-        setLog("PLATINUM I 종료 time : "+ LocalDateTime.now());
+        setLog("PLATINUM I setAllMatch 종료 time : "+ LocalDateTime.now());
         setAllMatchByTierAndRank("PLATINUM", "II", nowLocalDate);
-        setLog("PLATINUM II 종료 time : "+ LocalDateTime.now());
+        setLog("PLATINUM II setAllMatch 종료 time : "+ LocalDateTime.now());
         setAllMatchByTierAndRank("PLATINUM", "III", nowLocalDate);
-        setLog("PLATINUM III 종료 time : "+ LocalDateTime.now());
+        setLog("PLATINUM III setAllMatch 종료 time : "+ LocalDateTime.now());
         setAllMatchByTierAndRank("PLATINUM", "IV", nowLocalDate);
-        setLog("PLATINUM IV 종료 time : "+ LocalDateTime.now());
+        setLog("PLATINUM IV setAllMatch 종료 time : "+ LocalDateTime.now());
+        */
 
         setMatchDetailByNowLocalDate(nowLocalDate);
         setLog("setMatchDetailByNowLocalDate 종료 time : "+ LocalDateTime.now());
