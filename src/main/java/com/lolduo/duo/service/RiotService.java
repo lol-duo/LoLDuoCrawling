@@ -56,8 +56,8 @@ public class RiotService  implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        LocalDate localDate = LocalDate.parse("2022-11-01");
-        localTest(1667314799L,1667314799L - (60 * 60 * 24),localDate);
+        LocalDate localDate = LocalDate.parse("2022-11-02");
+        localTest(1667401199L,1667401199L - (60 * 60 * 24),localDate);
     }
 
     public ResponseEntity<?> localTest(Long endTime,Long startTime,LocalDate localDate){
