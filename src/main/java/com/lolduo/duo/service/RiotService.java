@@ -56,14 +56,13 @@ public class RiotService  implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        localTest();
+        LocalDate localDate = LocalDate.parse("2022-11-01");
+        localTest(1667314799L,1667314799L - (60 * 60 * 24),localDate);
     }
 
-    public ResponseEntity<?> localTest(){
-        Long endTime = System.currentTimeMillis() / 1000;
-        Long startTime = endTime - 60 * 60 * 24;
+    public ResponseEntity<?> localTest(Long endTime,Long startTime,LocalDate localDate){
+        NowLocalDate nowLocalDate = new NowLocalDate(startTime, endTime, localDate);
 
-        NowLocalDate nowLocalDate = new NowLocalDate(startTime, endTime, LocalDate.now());
 
         setUserByTopTier("challenger");
         setLog("challenger setUser 종료 time : "+ LocalDateTime.now());
@@ -74,6 +73,19 @@ public class RiotService  implements ApplicationRunner {
         setUserByTopTier("master");
         setLog("master setUser 종료 time : "+ LocalDateTime.now());
 
+        setUserByTierAndRank("DIAMOND", "I");
+        setLog("DIAMOND I setUser 종료 time : "+ LocalDateTime.now());
+
+        setUserByTierAndRank("DIAMOND", "II");
+        setLog("DIAMOND II setUser 종료 time : "+ LocalDateTime.now());
+
+        setUserByTierAndRank("DIAMOND", "III");
+        setLog("DIAMOND III setUser 종료 time : "+ LocalDateTime.now());
+
+        setUserByTierAndRank("DIAMOND", "IV");
+        setLog("DIAMOND IV setUser 종료 time : "+ LocalDateTime.now());
+
+
         setAllMatchByTier("challenger", nowLocalDate);
         setLog("challenger setAllMatch 종료 time : "+ LocalDateTime.now());
 
@@ -82,6 +94,17 @@ public class RiotService  implements ApplicationRunner {
 
         setAllMatchByTier("master", nowLocalDate);
         setLog("master setAllMatch 종료 time : "+ LocalDateTime.now());
+
+        setLog("DIAMOND I setAllMatch종료 time : "+ LocalDateTime.now());
+        setAllMatchByTierAndRank("DIAMOND", "II", nowLocalDate);
+
+        setLog("DIAMOND II setAllMatch 종료 time : "+ LocalDateTime.now());
+        setAllMatchByTierAndRank("DIAMOND", "III", nowLocalDate);
+
+        setLog("DIAMOND III setAllMatch 종료 time : "+ LocalDateTime.now());
+        setAllMatchByTierAndRank("DIAMOND", "IV", nowLocalDate);
+
+        setLog("DIAMOND IV setAllMatch 종료 time : "+ LocalDateTime.now());
 
         setMatchDetailByNowLocalDate(nowLocalDate);
         setLog("setMatchDetailByNowLocalDate 종료 time : "+ LocalDateTime.now());
