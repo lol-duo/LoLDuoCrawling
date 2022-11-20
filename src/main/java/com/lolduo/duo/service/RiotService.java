@@ -56,8 +56,11 @@ public class RiotService  implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        LocalDate localDate = LocalDate.parse("2022-11-02");
-        localTest(1667401199L,1667401199L - (60 * 60 * 24),localDate);
+        /*
+        LocalDate localDate = LocalDate.parse("2022-11-03");
+        Long endTime = 1667487599L; //11-03 23시59분59초
+        localTest(endTime,endTime - (60 * 60 * 24),localDate);
+         */
     }
 
     public ResponseEntity<?> localTest(Long endTime,Long startTime,LocalDate localDate){
@@ -111,7 +114,7 @@ public class RiotService  implements ApplicationRunner {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    //@Scheduled(cron = "0 0 0 * * *",zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 0 * * *",zone = "Asia/Seoul")
     public ResponseEntity<?> settingPackage(){
         if(isDetailWorking){
             setLog("saveMatchDetail이 이미 동작중입니다.");
